@@ -1,0 +1,320 @@
+{
+  "modelo_version": "3.0",
+  "fecha_actualizacion": "2025-07-24",
+  "casos_uso_principales": ["dashboard", "mesero", "cocina", "qr_selfservice"],
+  
+  "tablas": {
+    "cuenta": {
+      "proposito": "Gestión central de facturas con soporte QR y multi-cliente",
+      "categoria": "core_business",
+      "casos_uso": ["dashboard", "mesero", "qr_selfservice", "analytics"],
+      "importancia": "critica",
+      "campos": {
+        "id_cuenta": {
+          "tipo": "INTEGER",
+          "descripcion": "Identificador único de cuenta",
+          "es_pk": true,
+          "patron_uso": "Referenciado en todas las operaciones de facturación"
+        },
+        "origen_pedido": {
+          "tipo": "VARCHAR(20)",
+          "valores_validos": ["mesero", "qr_self", "app", "telefono"],
+          "proposito": "Trazabilidad de canal de venta",
+          "impacto_analytics": "Fundamental para análisis de conversión por canal"
+        },
+        "estado": {
+          "tipo": "VARCHAR(20)",
+          "valores_validos": ["abierta", "cerrada", "cancelada"],
+          "proposito": "Control de flujo de negocio",
+          "impacto_operativo": "Determina qué operaciones son permitidas"
+        },
+        "num_comensales": {
+          "tipo": "INTEGER",
+          "proposito": "Número de personas en la mesa",
+          "impacto_analytics": "Cálculo de ticket per capita y ocupación"
+        },
+        "id_sesion_qr": {
+          "tipo": "UUID",
+          "es_fk": true,
+          "tabla_referencia": "sesion_qr",
+          "proposito": "Vinculación con self-service QR",
+          "impacto_analytics": "Permite customer journey tracking completo"
+        }
+      },
+      "relaciones_padre": ["mesa", "usuario", "metodo_pago", "sesion_qr"],
+      "relaciones_hijo": ["cuenta_cliente", "cuenta_producto", "pedido", "pago_transaccion"]
+    },
+    
+    "sesion_qr": {
+      "proposito": "Gestión de sesiones QR para autoservicio completo",
+      "categoria": "qr_selfservice",
+      "casos_uso": ["qr_selfservice", "analytics"],
+      "importancia": "diferenciador",
+      "campos": {
+        "id_sesion": {
+          "tipo": "UUID",
+          "descripcion": "Identificador único de sesión QR",
+          "es_pk": true,
+          "patron_uso": "Tracking completo del customer journey"
+        },
+        "codigo_qr": {
+          "tipo": "VARCHAR(50)",
+          "proposito": "Código QR único por mesa/sesión",
+          "seguridad": "Token temporal, expira automáticamente"
+        },
+        "estado": {
+          "tipo": "VARCHAR(20)",
+          "valores_validos": ["activa", "expirada", "cerrada"],
+          "proposito": "Control de estado de sesión",
+          "impacto_seguridad": "Previene uso de QR caducados"
+        },
+        "dispositivo_info": {
+          "tipo": "JSONB",
+          "proposito": "Información del dispositivo cliente",
+          "impacto_analytics": "Análisis de comportamiento por tipo de dispositivo"
+        }
+      },
+      "relaciones_padre": ["mesa"],
+      "relaciones_hijo": ["evento_servicio", "carrito_temporal", "cuenta"]
+    },
+    
+    "evento_servicio": {
+      "proposito": "Tracking temporal completo del customer journey",
+      "categoria": "analytics",
+      "casos_uso": ["qr_selfservice", "analytics"],
+      "importancia": "diferenciador",
+      "campos": {
+        "tipo_evento": {
+          "tipo": "VARCHAR(30)",
+          "valores_validos": ["qr_scan", "menu_view", "item_select", "cart_modify", "order_submit", "payment_start", "payment_complete"],
+          "proposito": "Clasificación de eventos del customer journey",
+          "impacto_analytics": "Base para métricas de conversión y funnel analysis"
+        },
+        "timestamp_evento": {
+          "tipo": "TIMESTAMP",
+          "proposito": "Timestamp preciso del evento",
+          "impacto_analytics": "Cálculo de tiempos entre etapas del journey"
+        },
+        "duracion_ms": {
+          "tipo": "INTEGER",
+          "proposito": "Duración desde evento anterior",
+          "impacto_analytics": "Identificación de friction points en UX"
+        },
+        "metadatos": {
+          "tipo": "JSONB",
+          "proposito": "Datos específicos del evento",
+          "impacto_analytics": "Context-aware analytics y machine learning"
+        }
+      },
+      "relaciones_padre": ["sesion_qr", "cuenta"],
+      "relaciones_hijo": []
+    },
+    
+    "carrito_temporal": {
+      "proposito": "Análisis de abandono y decisiones pre-compra",
+      "categoria": "qr_selfservice",
+      "casos_uso": ["qr_selfservice", "analytics"],
+      "importancia": "diferenciador",
+      "campos": {
+        "abandonado": {
+          "tipo": "BOOLEAN",
+          "proposito": "Si fue abandonado sin confirmar",
+          "impacto_analytics": "Métricas de abandono de carrito y optimización UX"
+        },
+        "tiempo_decision_ms": {
+          "tipo": "INTEGER",
+          "proposito": "Tiempo que tardó en agregar este item",
+          "impacto_analytics": "Análisis de friction en decisión de compra"
+        },
+        "convertido_pedido": {
+          "tipo": "BOOLEAN",
+          "proposito": "Si se convirtió en pedido real",
+          "impacto_analytics": "Tasa de conversión carrito → pedido"
+        }
+      },
+      "relaciones_padre": ["sesion_qr"],
+      "relaciones_hijo": []
+    },
+    
+    "cuenta_cliente": {
+      "proposito": "Soporte multi-cliente por mesa con identificación posicional",
+      "categoria": "operaciones_avanzadas",
+      "casos_uso": ["mesero", "qr_selfservice"],
+      "importancia": "alta",
+      "campos": {
+        "posicion_mesa": {
+          "tipo": "VARCHAR(20)",
+          "valores_ejemplo": ["silla_1", "ventana", "esquina"],
+          "proposito": "Identificación posicional en mesa",
+          "impacto_operativo": "Entrega precisa de pedidos por mesero"
+        },
+        "orden_llegada": {
+          "tipo": "INTEGER",
+          "proposito": "Orden de llegada a la mesa",
+          "impacto_analytics": "Análisis de comportamiento por orden de llegada"
+        },
+        "presente": {
+          "tipo": "BOOLEAN",
+          "proposito": "Si el cliente ya llegó",
+          "impacto_operativo": "Control de comensales esperados vs presentes"
+        }
+      },
+      "relaciones_padre": ["cuenta", "cliente"],
+      "relaciones_hijo": ["pedido_detalle"]
+    },
+    
+    "features_ml": {
+      "proposito": "Variables extraídas para machine learning y data science",
+      "categoria": "analytics",
+      "casos_uso": ["analytics"],
+      "importancia": "diferenciador",
+      "campos": {
+        "tiempo_total_decision_minutes": {
+          "tipo": "DECIMAL(8,2)",
+          "proposito": "Tiempo total de decisión en minutos",
+          "impacto_ml": "Feature para predecir satisfacción del cliente"
+        },
+        "patron_navegacion": {
+          "tipo": "TEXT",
+          "proposito": "Secuencia de categorías visitadas",
+          "impacto_ml": "Feature para recomendaciones personalizadas"
+        },
+        "probabilidad_regreso": {
+          "tipo": "DECIMAL(4,3)",
+          "proposito": "Probabilidad calculada de regreso",
+          "impacto_ml": "Output de modelo predictivo de retention"
+        },
+        "categoria_preferida": {
+          "tipo": "VARCHAR(50)",
+          "proposito": "Categoría más visitada",
+          "impacto_ml": "Feature para targeting de promociones"
+        }
+      },
+      "relaciones_padre": ["sesion_qr"],
+      "relaciones_hijo": []
+    },
+    
+    "agregaciones_analytics": {
+      "proposito": "Métricas diarias consolidadas para dashboard",
+      "categoria": "analytics",
+      "casos_uso": ["dashboard", "analytics"],
+      "importancia": "alta",
+      "campos": {
+        "tasa_conversion": {
+          "tipo": "DECIMAL(5,2)",
+          "proposito": "% de conversión QR scan → pedido",
+          "impacto_business": "KPI principal para QR self-service"
+        },
+        "prediccion_demanda_proxima_hora": {
+          "tipo": "JSONB",
+          "proposito": "Predicciones ML de demanda",
+          "impacto_business": "Optimización de staffing y inventory"
+        },
+        "recomendaciones_operativas": {
+          "tipo": "JSONB",
+          "proposito": "Recomendaciones automáticas basadas en data",
+          "impacto_business": "Insights accionables para management"
+        }
+      },
+      "relaciones_padre": [],
+      "relaciones_hijo": []
+    },
+    
+    "mesa": {
+      "proposito": "Control de mesas con estados en tiempo real",
+      "categoria": "core_business",
+      "casos_uso": ["dashboard", "mesero", "qr_selfservice"],
+      "importancia": "critica",
+      "campos": {
+        "estado": {
+          "tipo": "VARCHAR(20)",
+          "valores_validos": ["libre", "ocupada", "reservada", "fuera_servicio"],
+          "proposito": "Estado actual de la mesa",
+          "impacto_operativo": "Control de disponibilidad y asignación"
+        },
+        "cuenta_activa": {
+          "tipo": "INTEGER",
+          "es_fk": true,
+          "tabla_referencia": "cuenta",
+          "proposito": "Cuenta actualmente abierta en la mesa",
+          "impacto_operativo": "Relación 1:1 mesa ↔ cuenta activa"
+        }
+      },
+      "relaciones_padre": ["sector"],
+      "relaciones_hijo": ["cuenta", "sesion_qr"]
+    },
+    
+    "pedido": {
+      "proposito": "Gestión de pedidos hacia cocina con estados y tiempos",
+      "categoria": "operaciones_avanzadas",
+      "casos_uso": ["mesero", "cocina"],
+      "importancia": "alta",
+      "campos": {
+        "estado": {
+          "tipo": "VARCHAR(20)",
+          "valores_validos": ["pendiente", "en_preparacion", "listo", "entregado", "cancelado"],
+          "proposito": "Estado del pedido en cocina",
+          "impacto_operativo": "Workflow de preparación y entrega"
+        },
+        "tiempo_estimado": {
+          "tipo": "INTEGER",
+          "proposito": "Tiempo estimado de preparación en minutos",
+          "impacto_customer": "Expectativas de tiempo de espera"
+        },
+        "prioridad": {
+          "tipo": "VARCHAR(10)",
+          "valores_validos": ["normal", "alta", "urgente"],
+          "proposito": "Priorización en cola de cocina",
+          "impacto_operativo": "Orden de preparación optimizado"
+        }
+      },
+      "relaciones_padre": ["cuenta", "usuario"],
+      "relaciones_hijo": ["pedido_detalle"]
+    }
+  },
+  
+  "patrones_query_frecuentes": {
+    "ventas_por_canal": {
+      "descripcion": "Análisis de ventas por origen de pedido",
+      "tablas": ["cuenta", "cuenta_producto"],
+      "query_ejemplo": "SELECT origen_pedido, COUNT(*), SUM(total) FROM cuenta WHERE DATE(fecha_apertura) = CURRENT_DATE GROUP BY origen_pedido"
+    },
+    "customer_journey_qr": {
+      "descripcion": "Análisis completo del journey QR",
+      "tablas": ["sesion_qr", "evento_servicio", "carrito_temporal"],
+      "query_ejemplo": "SELECT s.id_sesion, array_agg(e.tipo_evento ORDER BY e.timestamp_evento) as journey FROM sesion_qr s JOIN evento_servicio e USING(id_sesion) GROUP BY s.id_sesion"
+    },
+    "split_billing_status": {
+      "descripcion": "Estado de pago distribuido por mesa",
+      "tablas": ["cuenta_estado_pago", "pago_transaccion"],
+      "query_ejemplo": "SELECT id_cuenta, total_pagado, total_pendiente, pago_completo FROM cuenta_estado_pago WHERE pago_completo = false"
+    },
+    "ml_features_extraction": {
+      "descripcion": "Extracción de features para machine learning",
+      "tablas": ["features_ml", "sesion_qr", "evento_servicio"],
+      "query_ejemplo": "SELECT tiempo_total_decision_minutes, patron_navegacion, categoria_preferida FROM features_ml WHERE timestamp_calculo >= CURRENT_DATE"
+    }
+  },
+  
+  "integraciones_externas": {
+    "pasarelas_pago": ["stripe", "mercadopago", "transbank"],
+    "apis_delivery": ["rappi", "ubereats", "cornershop"],
+    "ml_platforms": ["aws_sagemaker", "google_automl", "azure_ml"],
+    "analytics": ["google_analytics", "mixpanel", "amplitude"]
+  },
+  
+  "configuraciones_modulares": {
+    "qr_selfservice": {
+      "parametros": ["QR_ENABLED", "QR_EXPIRATION_MINUTES", "QR_MAX_SESSIONS_PER_TABLE"],
+      "impacto": "Habilita/deshabilita completamente el módulo QR"
+    },
+    "split_billing": {
+      "parametros": ["SPLIT_BILLING_ENABLED", "MAX_PAGADORES_POR_CUENTA", "PAYMENT_TIMEOUT_MINUTES"],
+      "impacto": "Control del sistema de pago distribuido"
+    },
+    "ml_analytics": {
+      "parametros": ["ML_ENABLED", "REAL_TIME_FEATURES", "PREDICTION_MODELS"],
+      "impacto": "Capacidades de machine learning y analytics predictivo"
+    }
+  }
+}
