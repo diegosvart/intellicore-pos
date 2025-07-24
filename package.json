@@ -1,0 +1,49 @@
+{
+  "name": "intellicore-pos",
+  "version": "1.0.0",
+  "description": "Intelligent, Modular Point-of-Sale Engine for Modern Businesses",
+  "main": "index.js",
+  "scripts": {
+    "dev": "docker-compose up -d",
+    "build": "npm run build:frontend && npm run build:backend",
+    "build:frontend": "cd frontend && npm run build",
+    "build:backend": "cd backend && python -m build",
+    "test": "npm run test:frontend && npm run test:backend",
+    "test:frontend": "cd frontend && npm test",
+    "test:backend": "cd backend && python -m pytest",
+    "lint": "npm run lint:frontend && npm run lint:backend",
+    "lint:frontend": "cd frontend && ng lint",
+    "lint:backend": "cd backend && pylint src/",
+    "setup:dev": "./scripts/setup-dev.sh",
+    "deploy:demo": "./scripts/deploy-aws.sh demo",
+    "deploy:prod": "./scripts/deploy-aws.sh prod"
+  },
+  "keywords": [
+    "pos",
+    "point-of-sale",
+    "restaurant",
+    "retail",
+    "analytics",
+    "qr-service",
+    "ml",
+    "business-intelligence",
+    "split-billing",
+    "customer-journey",
+    "real-time-analytics"
+  ],
+  "author": "Tu Nombre",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tu-usuario/intellicore-pos.git"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "workspaces": [
+    "frontend",
+    "backend",
+    "shared"
+  ]
+}

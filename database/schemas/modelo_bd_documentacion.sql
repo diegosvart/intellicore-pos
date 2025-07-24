@@ -1,0 +1,37 @@
+-- Sistema de Control de Bar - Modelo de Base de Datos
+-- Generado para database.build
+
+-- Entidades principales:
+-- 1. cliente: Información de clientes del bar
+-- 2. mesa: Mesas disponibles en el establecimiento
+-- 3. sector: Sectores donde se ubican las mesas
+-- 4. cuenta: Cuentas/facturas generadas
+-- 5. cuenta_corriente: Movimientos de cuenta corriente de clientes
+-- 6. comida: Platos del menú
+-- 7. trago: Bebidas del menú
+-- 8. cuenta_producto: Detalle de productos en cada cuenta
+-- 9. receta: Recetas para preparar comidas
+-- 10. materia_prima: Ingredientes y materias primas
+-- 11. receta_materia: Relación entre recetas y materias primas
+-- 12. unidad_medida: Unidades de medida para materias primas
+-- 13. metodo_pago: Métodos de pago disponibles
+-- 14. motivo: Motivos para diferentes operaciones
+-- 15. parametro: Parámetros de configuración del sistema
+-- 16. usuario: Usuarios del sistema
+
+-- Relaciones principales:
+-- cliente (1) -> (N) cuenta_corriente
+-- mesa (1) -> (N) cuenta
+-- sector (1) -> (N) mesa
+-- cuenta (1) -> (N) cuenta_producto
+-- metodo_pago (1) -> (N) cuenta
+-- receta (1) -> (N) comida
+-- receta (1) -> (N) receta_materia
+-- materia_prima (1) -> (N) receta_materia
+-- unidad_medida (1) -> (N) materia_prima
+
+-- Notas especiales:
+-- cuenta_producto.tipo_producto diferencia entre 'comida' y 'trago'
+-- cuenta_producto.producto_id referencia a comida.id_comida o trago.id_trago según tipo_producto
+-- cliente.rut es VARCHAR para manejar formato chileno (ej: 12345678-9)
+-- Las tablas de comida y trago tienen estructura similar pero separada para mayor flexibilidad

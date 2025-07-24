@@ -1,0 +1,566 @@
+{
+  "database_name": "sistema_control_bar_v3",
+  "description": "Sistema de gestión completo para un bar/restaurante con soporte multi-cliente por mesa, flujos diferenciados y analytics QR self-service",
+  "version": "3.0",
+  "mejoras_v3": [
+    "Soporte para múltiples clientes por mesa",
+    "Identificación posicional de clientes",
+    "Trazabilidad individual de pedidos",
+    "Flujos diferenciados cocina/mesero",
+    "Pedidos progresivos e incrementales",
+    "Sistema QR self-service con analytics",
+    "Tracking temporal completo del customer journey",
+    "Machine Learning features para recomendaciones",
+    "Data Science pipeline integrado"
+  ],
+  "tables": [
+    {
+      "name": "cliente",
+      "description": "Información de clientes del bar",
+      "columns": [
+        {"name": "rut", "type": "VARCHAR(12)", "primary_key": true, "nullable": false, "description": "RUT del cliente"},
+        {"name": "nombre", "type": "VARCHAR(100)", "primary_key": false, "nullable": false, "description": "Nombre del cliente"},
+        {"name": "apellidos", "type": "VARCHAR(100)", "primary_key": false, "nullable": false, "description": "Apellidos del cliente"},
+        {"name": "telefono", "type": "VARCHAR(15)", "primary_key": false, "nullable": true, "description": "Teléfono del cliente"},
+        {"name": "email", "type": "VARCHAR(100)", "primary_key": false, "nullable": true, "description": "Email del cliente"},
+        {"name": "cuenta_corriente", "type": "DECIMAL(10,2)", "primary_key": false, "nullable": true, "description": "Saldo de cuenta corriente"},
+        {"name": "fecha_registro", "type": "TIMESTAMP", "primary_key": false, "nullable": false, "description": "Fecha de registro del cliente"},
+        {"name": "activo", "type": "BOOLEAN", "primary_key": false, "nullable": false, "description": "Estado del cliente"},
+        {"name": "preferencias", "type": "TEXT", "primary_key": false, "nullable": true, "description": "Preferencias del cliente"}
+      ]
+    },
+    {
+      "name": "sector",
+      "description": "Sectores del establecimiento con configuración de servicios",
+      "columns": [
+        {"name": "id_sector", "type": "INTEGER", "primary_key": true, "nullable": false, "description": "ID único del sector"},
+        {"name": "nombre", "type": "VARCHAR(50)", "primary_key": false, "nullable": false, "description": "Nombre del sector"},
+        {"name": "capacidad_mesas", "type": "INTEGER", "primary_key": false, "nullable": true, "description": "Capacidad máxima de mesas"},
+        {"name": "activo", "type": "BOOLEAN", "primary_key": false, "nullable": false, "description": "Si el sector está activo"},
+        {"name": "tiene_cocina", "type": "BOOLEAN", "primary_key": false, "nullable": false, "description": "Si el sector tiene acceso a cocina"},
+        {"name": "tipo_servicio", "type": "VARCHAR(20)", "primary_key": false, "nullable": false, "description": "Tipo: completo, bebidas, rapido, autoservicio"}
+      ]
+    },
+    {
+      "name": "mesa",
+      "description": "Mesas del establecimiento con control de estado",
+      "columns": [
+        {"name": "id_mesa", "type": "INTEGER", "primary_key": true, "nullable": false, "description": "ID único de la mesa"},
+        {"name": "sector", "type": "INTEGER", "primary_key": false, "nullable": false, "foreign_key": {"table": "sector", "column": "id_sector"}, "description": "Sector donde se ubica la mesa"},
+        {"name": "capacidad", "type": "INTEGER", "primary_key": false, "nullable": false, "description": "Capacidad de personas"},
+        {"name": "estado", "type": "VARCHAR(20)", "primary_key": false, "nullable": false, "description": "Estado: libre, ocupada, reservada, fuera_servicio"},
+        {"name": "cuenta_activa", "type": "INTEGER", "primary_key": false, "nullable": true, "foreign_key": {"table": "cuenta", "column": "id_cuenta"}, "description": "Cuenta actualmente abierta"},
+        {"name": "ultimo_cambio", "type": "TIMESTAMP", "primary_key": false, "nullable": false, "description": "Timestamp del último cambio de estado"},
+        {"name": "layout_posiciones", "type": "TEXT", "primary_key": false, "nullable": true, "description": "JSON con las posiciones disponibles en la mesa"}
+      ]
+    },
+    {
+      "name": "usuario",
+      "description": "Usuarios del sistema con roles y configuración modular",
+      "columns": [
+        {"name": "id_usuario", "type": "INTEGER", "primary_key": true, "nullable": false, "description": "ID único del usuario"},
+        {"name": "nombre", "type": "VARCHAR(100)", "primary_key": false, "nullable": false, "description": "Nombre del usuario"},
+        {"name": "email", "type": "VARCHAR(100)", "primary_key": false, "nullable": false, "description": "Email del usuario"},
+        {"name": "password_hash", "type": "VARCHAR(255)", "primary_key": false, "nullable": false, "description": "Hash de la contraseña"},
+        {"name": "rol", "type": "VARCHAR(20)", "primary_key": false, "nullable": false, "description": "Rol: admin, mesero, cocinero, cajero"},
+        {"name": "turno", "type": "VARCHAR(20)", "primary_key": false, "nullable": true, "description": "Turno: mañana, tarde, noche"},
+        {"name": "acceso", "type": "BOOLEAN", "primary_key": false, "nullable": false, "description": "Estado de acceso"},
+        {"name": "modulos_acceso", "type": "TEXT", "primary_key": false, "nullable": true, "description": "JSON con módulos permitidos: [\"cocina\", \"inventario\", \"reportes\"]"},
+        {"name": "configuracion_personal", "type": "TEXT", "primary_key": false, "nullable": true, "description": "JSON con preferencias personales del usuario"},
+        {"name": "fecha_creacion", "type": "TIMESTAMP", "primary_key": false, "nullable": false, "description": "Fecha de creación"},
+        {"name": "ultimo_acceso", "type": "TIMESTAMP", "primary_key": false, "nullable": true, "description": "Último acceso al sistema"}
+      ]
+    },
+    {
+      "name": "metodo_pago",
+      "description": "Métodos de pago disponibles",
+      "columns": [
+        {"name": "id_metodo", "type": "INTEGER", "primary_key": true, "nullable": false, "description": "ID único del método de pago"},
+        {"name": "nombre", "type": "VARCHAR(50)", "primary_key": false, "nullable": false, "description": "Nombre del método de pago"},
+        {"name": "activo", "type": "BOOLEAN", "primary_key": false, "nullable": false, "description": "Si el método está activo"},
+        {"name": "requiere_autorizacion", "type": "BOOLEAN", "primary_key": false, "nullable": false, "description": "Si requiere autorización especial"}
+      ]
+    },
+    {
+      "name": "cuenta",
+      "description": "Cuentas/facturas del bar con control temporal",
+      "columns": [
+        {"name": "id_cuenta", "type": "INTEGER", "primary_key": true, "nullable": false, "description": "ID único de la cuenta"},
+        {"name": "mesa_id", "type": "INTEGER", "primary_key": false, "nullable": false, "foreign_key": {"table": "mesa", "column": "id_mesa"}, "description": "Mesa asociada a la cuenta"},
+        {"name": "mesero_id", "type": "INTEGER", "primary_key": false, "nullable": false, "foreign_key": {"table": "usuario", "column": "id_usuario"}, "description": "Mesero asignado"},
+        {"name": "cliente_principal", "type": "VARCHAR(12)", "primary_key": false, "nullable": true, "foreign_key": {"table": "cliente", "column": "rut"}, "description": "Cliente principal de la cuenta (opcional)"},
+        {"name": "fecha_apertura", "type": "TIMESTAMP", "primary_key": false, "nullable": false, "description": "Fecha y hora de apertura"},
+        {"name": "fecha_cierre", "type": "TIMESTAMP", "primary_key": false, "nullable": true, "description": "Fecha y hora de cierre"},
+        {"name": "estado", "type": "VARCHAR(20)", "primary_key": false, "nullable": false, "description": "Estado: abierta, cerrada, cancelada"},
+        {"name": "num_comensales", "type": "INTEGER", "primary_key": false, "nullable": false, "description": "Número de comensales en la mesa"},
+        {"name": "subtotal", "type": "DECIMAL(10,2)", "primary_key": false, "nullable": false, "description": "Subtotal sin propina"},
+        {"name": "propina", "type": "DECIMAL(10,2)", "primary_key": false, "nullable": true, "description": "Propina añadida"},
+        {"name": "total", "type": "DECIMAL(10,2)", "primary_key": false, "nullable": false, "description": "Total de la cuenta"},
+        {"name": "metodo_pago", "type": "INTEGER", "primary_key": false, "nullable": true, "foreign_key": {"table": "metodo_pago", "column": "id_metodo"}, "description": "Método de pago utilizado"},
+        {"name": "origen_pedido", "type": "VARCHAR(20)", "primary_key": false, "nullable": false, "description": "Origen: mesero, qr_self, app, telefono"},
+        {"name": "id_sesion_qr", "type": "UUID", "primary_key": false, "nullable": true, "foreign_key": {"table": "sesion_qr", "column": "id_sesion"}, "description": "Sesión QR asociada (si aplica)"},
+        {"name": "dispositivo_cliente", "type": "JSONB", "primary_key": false, "nullable": true, "description": "Información del dispositivo del cliente"},
+        {"name": "preferencias_detectadas", "type": "JSONB", "primary_key": false, "nullable": true, "description": "Patrones ML detectados del cliente"},
+        {"name": "tiempo_total_decision", "type": "INTEGER", "primary_key": false, "nullable": true, "description": "Tiempo en ms desde QR hasta submit"},
+        {"name": "observaciones", "type": "TEXT", "primary_key": false, "nullable": true, "description": "Observaciones de la cuenta"}
+      ]
+    },
+    {
+      "name": "cuenta_cliente",
+      "description": "Clientes individuales asociados a una cuenta/mesa",
+      "columns": [
+        {"name": "id_cuenta_cliente", "type": "INTEGER", "primary_key": true, "nullable": false, "description": "ID único del cliente en la cuenta"},
+        {"name": "id_cuenta", "type": "INTEGER", "primary_key": false, "nullable": false, "foreign_key": {"table": "cuenta", "column": "id_cuenta"}, "description": "Cuenta asociada"},
+        {"name": "cliente_id", "type": "VARCHAR(12)", "primary_key": false, "nullable": true, "foreign_key": {"table": "cliente", "column": "rut"}, "description": "Cliente registrado (opcional)"},
+        {"name": "nombre_temporal", "type": "VARCHAR(100)", "primary_key": false, "nullable": false, "description": "Nombre temporal para identificación"},
+        {"name": "posicion_mesa", "type": "VARCHAR(20)", "primary_key": false, "nullable": true, "description": "Posición en la mesa: silla_1, ventana, esquina, etc."},
+        {"name": "orden_llegada", "type": "INTEGER", "primary_key": false, "nullable": false, "description": "Orden de llegada (1, 2, 3, ...)"},
+        {"name": "presente", "type": "BOOLEAN", "primary_key": false, "nullable": false, "description": "Si el cliente ya llegó o está esperado"},
+        {"name": "fecha_agregado", "type": "TIMESTAMP", "primary_key": false, "nullable": false, "description": "Cuándo se agregó a la cuenta"},
+        {"name": "fecha_llegada", "type": "TIMESTAMP", "primary_key": false, "nullable": true, "description": "Cuándo llegó el cliente"},
+        {"name": "observaciones", "type": "TEXT", "primary_key": false, "nullable": true, "description": "Observaciones sobre el cliente"}
+      ]
+    },
+    {
+      "name": "pedido",
+      "description": "Pedidos enviados a cocina",
+      "columns": [
+        {"name": "id_pedido", "type": "INTEGER", "primary_key": true, "nullable": false, "description": "ID único del pedido"},
+        {"name": "id_cuenta", "type": "INTEGER", "primary_key": false, "nullable": false, "foreign_key": {"table": "cuenta", "column": "id_cuenta"}, "description": "Cuenta asociada"},
+        {"name": "numero_pedido", "type": "INTEGER", "primary_key": false, "nullable": false, "description": "Número secuencial del pedido del día"},
+        {"name": "fecha_hora", "type": "TIMESTAMP", "primary_key": false, "nullable": false, "description": "Fecha y hora del pedido"},
+        {"name": "estado", "type": "VARCHAR(20)", "primary_key": false, "nullable": false, "description": "Estado: pendiente, en_preparacion, listo, entregado, cancelado"},
+        {"name": "mesero_id", "type": "INTEGER", "primary_key": false, "nullable": false, "foreign_key": {"table": "usuario", "column": "id_usuario"}, "description": "Mesero que tomó el pedido"},
+        {"name": "cocinero_id", "type": "INTEGER", "primary_key": false, "nullable": true, "foreign_key": {"table": "usuario", "column": "id_usuario"}, "description": "Cocinero asignado"},
+        {"name": "tiempo_estimado", "type": "INTEGER", "primary_key": false, "nullable": true, "description": "Tiempo estimado en minutos"},
+        {"name": "fecha_inicio_prep", "type": "TIMESTAMP", "primary_key": false, "nullable": true, "description": "Inicio de preparación"},
+        {"name": "fecha_listo", "type": "TIMESTAMP", "primary_key": false, "nullable": true, "description": "Fecha cuando está listo"},
+        {"name": "fecha_entregado", "type": "TIMESTAMP", "primary_key": false, "nullable": true, "description": "Fecha de entrega"},
+        {"name": "observaciones", "type": "TEXT", "primary_key": false, "nullable": true, "description": "Observaciones del pedido"},
+        {"name": "prioridad", "type": "VARCHAR(10)", "primary_key": false, "nullable": false, "description": "Prioridad: normal, alta, urgente"},
+        {"name": "tipo_pedido", "type": "VARCHAR(20)", "primary_key": false, "nullable": false, "description": "Tipo: inicial, adicional, postre, bebida"}
+      ]
+    },
+    {
+      "name": "unidad_medida",
+      "description": "Unidades de medida para materias primas",
+      "columns": [
+        {"name": "id_unidad", "type": "INTEGER", "primary_key": true, "nullable": false, "description": "ID único de la unidad"},
+        {"name": "nombre", "type": "VARCHAR(30)", "primary_key": false, "nullable": false, "description": "Nombre de la unidad de medida"},
+        {"name": "abreviacion", "type": "VARCHAR(10)", "primary_key": false, "nullable": false, "description": "Abreviación de la unidad"},
+        {"name": "tipo", "type": "VARCHAR(20)", "primary_key": false, "nullable": false, "description": "Tipo: peso, volumen, cantidad"}
+      ]
+    },
+    {
+      "name": "materia_prima",
+      "description": "Materias primas e ingredientes con control de stock",
+      "columns": [
+        {"name": "id_materia", "type": "INTEGER", "primary_key": true, "nullable": false, "description": "ID único de la materia prima"},
+        {"name": "nombre", "type": "VARCHAR(100)", "primary_key": false, "nullable": false, "description": "Nombre de la materia prima"},
+        {"name": "unidad_medida", "type": "INTEGER", "primary_key": false, "nullable": false, "foreign_key": {"table": "unidad_medida", "column": "id_unidad"}, "description": "Unidad de medida"},
+        {"name": "stock_actual", "type": "DECIMAL(10,3)", "primary_key": false, "nullable": false, "description": "Stock actual"},
+        {"name": "stock_minimo", "type": "DECIMAL(10,3)", "primary_key": false, "nullable": false, "description": "Stock mínimo de alerta"},
+        {"name": "stock_maximo", "type": "DECIMAL(10,3)", "primary_key": false, "nullable": true, "description": "Stock máximo recomendado"},
+        {"name": "costo_unitario", "type": "DECIMAL(10,2)", "primary_key": false, "nullable": false, "description": "Costo por unidad"},
+        {"name": "proveedor", "type": "VARCHAR(100)", "primary_key": false, "nullable": true, "description": "Proveedor principal"},
+        {"name": "activo", "type": "BOOLEAN", "primary_key": false, "nullable": false, "description": "Si la materia prima está activa"},
+        {"name": "fecha_creacion", "type": "TIMESTAMP", "primary_key": false, "nullable": false, "description": "Fecha de creación"}
+      ]
+    },
+    {
+      "name": "movimiento_inventario",
+      "description": "Movimientos de inventario para control de stock",
+      "columns": [
+        {"name": "id_movimiento", "type": "INTEGER", "primary_key": true, "nullable": false, "description": "ID único del movimiento"},
+        {"name": "id_materia", "type": "INTEGER", "primary_key": false, "nullable": false, "foreign_key": {"table": "materia_prima", "column": "id_materia"}, "description": "Materia prima afectada"},
+        {"name": "tipo_movimiento", "type": "VARCHAR(20)", "primary_key": false, "nullable": false, "description": "Tipo: entrada, salida, ajuste, merma"},
+        {"name": "cantidad", "type": "DECIMAL(10,3)", "primary_key": false, "nullable": false, "description": "Cantidad del movimiento"},
+        {"name": "stock_anterior", "type": "DECIMAL(10,3)", "primary_key": false, "nullable": false, "description": "Stock antes del movimiento"},
+        {"name": "stock_nuevo", "type": "DECIMAL(10,3)", "primary_key": false, "nullable": false, "description": "Stock después del movimiento"},
+        {"name": "fecha_hora", "type": "TIMESTAMP", "primary_key": false, "nullable": false, "description": "Fecha y hora del movimiento"},
+        {"name": "motivo", "type": "VARCHAR(200)", "primary_key": false, "nullable": true, "description": "Motivo del movimiento"},
+        {"name": "usuario_id", "type": "INTEGER", "primary_key": false, "nullable": false, "foreign_key": {"table": "usuario", "column": "id_usuario"}, "description": "Usuario que realizó el movimiento"},
+        {"name": "pedido_id", "type": "INTEGER", "primary_key": false, "nullable": true, "foreign_key": {"table": "pedido", "column": "id_pedido"}, "description": "Pedido asociado (para salidas automáticas)"},
+        {"name": "costo_unitario", "type": "DECIMAL(10,2)", "primary_key": false, "nullable": true, "description": "Costo unitario en el momento del movimiento"}
+      ]
+    },
+    {
+      "name": "receta",
+      "description": "Recetas para preparar comidas",
+      "columns": [
+        {"name": "id_receta", "type": "INTEGER", "primary_key": true, "nullable": false, "description": "ID único de la receta"},
+        {"name": "nombre", "type": "VARCHAR(100)", "primary_key": false, "nullable": false, "description": "Nombre de la receta"},
+        {"name": "descripcion", "type": "TEXT", "primary_key": false, "nullable": true, "description": "Descripción detallada de la receta"},
+        {"name": "instrucciones", "type": "TEXT", "primary_key": false, "nullable": true, "description": "Instrucciones de preparación"},
+        {"name": "tiempo_preparacion", "type": "INTEGER", "primary_key": false, "nullable": true, "description": "Tiempo de preparación en minutos"},
+        {"name": "porciones", "type": "INTEGER", "primary_key": false, "nullable": false, "description": "Número de porciones que rinde"},
+        {"name": "costo_calculado", "type": "DECIMAL(10,2)", "primary_key": false, "nullable": false, "description": "Costo calculado automáticamente"},
+        {"name": "activa", "type": "BOOLEAN", "primary_key": false, "nullable": false, "description": "Si la receta está activa"},
+        {"name": "fecha_creacion", "type": "TIMESTAMP", "primary_key": false, "nullable": false, "description": "Fecha de creación"},
+        {"name": "usuario_creador", "type": "INTEGER", "primary_key": false, "nullable": false, "foreign_key": {"table": "usuario", "column": "id_usuario"}, "description": "Usuario que creó la receta"}
+      ]
+    },
+    {
+      "name": "receta_materia",
+      "description": "Relación entre recetas y materias primas",
+      "columns": [
+        {"name": "id_receta", "type": "INTEGER", "primary_key": false, "nullable": false, "foreign_key": {"table": "receta", "column": "id_receta"}, "description": "Receta asociada"},
+        {"name": "id_materia", "type": "INTEGER", "primary_key": false, "nullable": false, "foreign_key": {"table": "materia_prima", "column": "id_materia"}, "description": "Materia prima necesaria"},
+        {"name": "cantidad", "type": "DECIMAL(10,3)", "primary_key": false, "nullable": false, "description": "Cantidad necesaria por porción"},
+        {"name": "es_opcional", "type": "BOOLEAN", "primary_key": false, "nullable": false, "description": "Si el ingrediente es opcional"},
+        {"name": "orden", "type": "INTEGER", "primary_key": false, "nullable": true, "description": "Orden en la preparación"}
+      ]
+    },
+    {
+      "name": "comida",
+      "description": "Platos del menú con configuración granular de funcionalidades",
+      "columns": [
+        {"name": "id_comida", "type": "INTEGER", "primary_key": true, "nullable": false, "description": "ID único de la comida"},
+        {"name": "nombre", "type": "VARCHAR(100)", "primary_key": false, "nullable": false, "description": "Nombre del plato"},
+        {"name": "descripcion", "type": "TEXT", "primary_key": false, "nullable": true, "description": "Descripción del plato"},
+        {"name": "receta", "type": "INTEGER", "primary_key": false, "nullable": true, "foreign_key": {"table": "receta", "column": "id_receta"}, "description": "Receta asociada"},
+        {"name": "precio_costo", "type": "DECIMAL(10,2)", "primary_key": false, "nullable": false, "description": "Precio de costo"},
+        {"name": "precio_venta", "type": "DECIMAL(10,2)", "primary_key": false, "nullable": false, "description": "Precio de venta"},
+        {"name": "familia", "type": "VARCHAR(50)", "primary_key": false, "nullable": true, "description": "Familia del plato"},
+        {"name": "tiempo_preparacion", "type": "INTEGER", "primary_key": false, "nullable": true, "description": "Tiempo de preparación en minutos"},
+        {"name": "disponible", "type": "BOOLEAN", "primary_key": false, "nullable": false, "description": "Si está disponible en el menú"},
+        {"name": "requiere_stock", "type": "BOOLEAN", "primary_key": false, "nullable": false, "description": "Si requiere verificación de stock"},
+        {"name": "requiere_receta", "type": "BOOLEAN", "primary_key": false, "nullable": false, "description": "Si requiere receta obligatoria"},
+        {"name": "enviar_a_cocina", "type": "BOOLEAN", "primary_key": false, "nullable": false, "description": "Si debe enviarse a cocina para preparación"},
+        {"name": "control_stock", "type": "BOOLEAN", "primary_key": false, "nullable": false, "description": "Si aplica control automático de inventario"},
+        {"name": "modo_simplificado", "type": "BOOLEAN", "primary_key": false, "nullable": false, "description": "Si usa modo simplificado (sin recetas/stock)"},
+        {"name": "imagen_url", "type": "VARCHAR(255)", "primary_key": false, "nullable": true, "description": "URL de la imagen del plato"}
+      ]
+    },
+    {
+      "name": "trago",
+      "description": "Bebidas del menú con control de preparación configurable",
+      "columns": [
+        {"name": "id_trago", "type": "INTEGER", "primary_key": true, "nullable": false, "description": "ID único del trago"},
+        {"name": "nombre", "type": "VARCHAR(100)", "primary_key": false, "nullable": false, "description": "Nombre del trago"},
+        {"name": "descripcion", "type": "TEXT", "primary_key": false, "nullable": true, "description": "Descripción del trago"},
+        {"name": "precio_costo", "type": "DECIMAL(10,2)", "primary_key": false, "nullable": false, "description": "Precio de costo"},
+        {"name": "precio_venta", "type": "DECIMAL(10,2)", "primary_key": false, "nullable": false, "description": "Precio de venta"},
+        {"name": "familia", "type": "VARCHAR(50)", "primary_key": false, "nullable": true, "description": "Familia del trago"},
+        {"name": "sub_familia", "type": "VARCHAR(50)", "primary_key": false, "nullable": true, "description": "Sub-familia del trago"},
+        {"name": "graduacion_alcoholica", "type": "DECIMAL(4,2)", "primary_key": false, "nullable": true, "description": "Graduación alcohólica"},
+        {"name": "volumen_ml", "type": "INTEGER", "primary_key": false, "nullable": true, "description": "Volumen en mililitros"},
+        {"name": "disponible", "type": "BOOLEAN", "primary_key": false, "nullable": false, "description": "Si está disponible en el menú"},
+        {"name": "requiere_stock", "type": "BOOLEAN", "primary_key": false, "nullable": false, "description": "Si requiere verificación de stock"},
+        {"name": "requiere_preparacion", "type": "BOOLEAN", "primary_key": false, "nullable": false, "description": "Si requiere preparación especial"},
+        {"name": "control_stock", "type": "BOOLEAN", "primary_key": false, "nullable": false, "description": "Si aplica control automático de inventario"},
+        {"name": "imagen_url", "type": "VARCHAR(255)", "primary_key": false, "nullable": true, "description": "URL de la imagen del trago"}
+      ]
+    },
+    {
+      "name": "pedido_detalle",
+      "description": "Detalle de productos en cada pedido con trazabilidad por cliente",
+      "columns": [
+        {"name": "id_pedido", "type": "INTEGER", "primary_key": false, "nullable": false, "foreign_key": {"table": "pedido", "column": "id_pedido"}, "description": "Pedido asociado"},
+        {"name": "producto_id", "type": "INTEGER", "primary_key": false, "nullable": false, "description": "ID del producto (comida o trago)"},
+        {"name": "tipo_producto", "type": "VARCHAR(10)", "primary_key": false, "nullable": false, "description": "Tipo: 'comida' o 'trago'"},
+        {"name": "cantidad", "type": "INTEGER", "primary_key": false, "nullable": false, "description": "Cantidad del producto"},
+        {"name": "precio_unitario", "type": "DECIMAL(10,2)", "primary_key": false, "nullable": false, "description": "Precio unitario en el momento del pedido"},
+        {"name": "id_cuenta_cliente", "type": "INTEGER", "primary_key": false, "nullable": false, "foreign_key": {"table": "cuenta_cliente", "column": "id_cuenta_cliente"}, "description": "Cliente específico que pidió el item"},
+        {"name": "estado_item", "type": "VARCHAR(20)", "primary_key": false, "nullable": false, "description": "Estado del item: pendiente, preparando, listo, entregado"},
+        {"name": "requiere_cocina", "type": "BOOLEAN", "primary_key": false, "nullable": false, "description": "Si el item requiere preparación en cocina"},
+        {"name": "prioridad_entrega", "type": "VARCHAR(15)", "primary_key": false, "nullable": false, "description": "Prioridad: inmediato, normal, con_comida"},
+        {"name": "observaciones", "type": "TEXT", "primary_key": false, "nullable": true, "description": "Observaciones específicas del item"},
+        {"name": "fecha_inicio_prep", "type": "TIMESTAMP", "primary_key": false, "nullable": true, "description": "Inicio de preparación del item"},
+        {"name": "fecha_listo", "type": "TIMESTAMP", "primary_key": false, "nullable": true, "description": "Fecha cuando el item está listo"},
+        {"name": "cocinero_asignado", "type": "INTEGER", "primary_key": false, "nullable": true, "foreign_key": {"table": "usuario", "column": "id_usuario"}, "description": "Cocinero asignado específicamente a este item"}
+      ]
+    },
+    {
+      "name": "cuenta_producto",
+      "description": "Detalle de productos facturados en cada cuenta",
+      "columns": [
+        {"name": "id_cuenta", "type": "INTEGER", "primary_key": false, "nullable": false, "foreign_key": {"table": "cuenta", "column": "id_cuenta"}, "description": "Cuenta asociada"},
+        {"name": "producto_id", "type": "INTEGER", "primary_key": false, "nullable": false, "description": "ID del producto (comida o trago)"},
+        {"name": "tipo_producto", "type": "VARCHAR(10)", "primary_key": false, "nullable": false, "description": "Tipo: 'comida' o 'trago'"},
+        {"name": "cantidad", "type": "INTEGER", "primary_key": false, "nullable": false, "description": "Cantidad del producto"},
+        {"name": "precio_unitario", "type": "DECIMAL(10,2)", "primary_key": false, "nullable": false, "description": "Precio unitario"},
+        {"name": "subtotal", "type": "DECIMAL(10,2)", "primary_key": false, "nullable": false, "description": "Subtotal de la línea"},
+        {"name": "pedido_id", "type": "INTEGER", "primary_key": false, "nullable": true, "foreign_key": {"table": "pedido", "column": "id_pedido"}, "description": "Pedido origen (si aplica)"},
+        {"name": "id_cuenta_cliente", "type": "INTEGER", "primary_key": false, "nullable": true, "foreign_key": {"table": "cuenta_cliente", "column": "id_cuenta_cliente"}, "description": "Cliente específico (para división de cuenta)"},
+        {"name": "fecha_agregado", "type": "TIMESTAMP", "primary_key": false, "nullable": false, "description": "Fecha cuando se agregó a la cuenta"}
+      ]
+    },
+    {
+      "name": "cuenta_corriente",
+      "description": "Movimientos de cuenta corriente de clientes",
+      "columns": [
+        {"name": "id_cc", "type": "INTEGER", "primary_key": true, "nullable": false, "description": "ID único del movimiento"},
+        {"name": "cliente_id", "type": "VARCHAR(12)", "primary_key": false, "nullable": false, "foreign_key": {"table": "cliente", "column": "rut"}, "description": "Cliente asociado"},
+        {"name": "fecha", "type": "DATE", "primary_key": false, "nullable": false, "description": "Fecha del movimiento"},
+        {"name": "hora", "type": "TIME", "primary_key": false, "nullable": false, "description": "Hora del movimiento"},
+        {"name": "tipo_movimiento", "type": "VARCHAR(20)", "primary_key": false, "nullable": false, "description": "Tipo: cargo, abono, ajuste"},
+        {"name": "detalle", "type": "VARCHAR(200)", "primary_key": false, "nullable": true, "description": "Detalle del movimiento"},
+        {"name": "monto", "type": "DECIMAL(10,2)", "primary_key": false, "nullable": false, "description": "Monto del movimiento"},
+        {"name": "saldo_anterior", "type": "DECIMAL(10,2)", "primary_key": false, "nullable": false, "description": "Saldo antes del movimiento"},
+        {"name": "saldo_nuevo", "type": "DECIMAL(10,2)", "primary_key": false, "nullable": false, "description": "Saldo después del movimiento"},
+        {"name": "cuenta_id", "type": "INTEGER", "primary_key": false, "nullable": true, "foreign_key": {"table": "cuenta", "column": "id_cuenta"}, "description": "Cuenta asociada (si aplica)"},
+        {"name": "usuario_id", "type": "INTEGER", "primary_key": false, "nullable": false, "foreign_key": {"table": "usuario", "column": "id_usuario"}, "description": "Usuario que realizó el movimiento"}
+      ]
+    },
+    {
+      "name": "alerta_stock",
+      "description": "Alertas de stock bajo",
+      "columns": [
+        {"name": "id_alerta", "type": "INTEGER", "primary_key": true, "nullable": false, "description": "ID único de la alerta"},
+        {"name": "id_materia", "type": "INTEGER", "primary_key": false, "nullable": false, "foreign_key": {"table": "materia_prima", "column": "id_materia"}, "description": "Materia prima con stock bajo"},
+        {"name": "stock_actual", "type": "DECIMAL(10,3)", "primary_key": false, "nullable": false, "description": "Stock actual cuando se generó la alerta"},
+        {"name": "stock_minimo", "type": "DECIMAL(10,3)", "primary_key": false, "nullable": false, "description": "Stock mínimo configurado"},
+        {"name": "fecha_alerta", "type": "TIMESTAMP", "primary_key": false, "nullable": false, "description": "Fecha y hora de la alerta"},
+        {"name": "estado", "type": "VARCHAR(20)", "primary_key": false, "nullable": false, "description": "Estado: activa, resuelta, ignorada"},
+        {"name": "fecha_resolucion", "type": "TIMESTAMP", "primary_key": false, "nullable": true, "description": "Fecha de resolución"},
+        {"name": "usuario_resuelve", "type": "INTEGER", "primary_key": false, "nullable": true, "foreign_key": {"table": "usuario", "column": "id_usuario"}, "description": "Usuario que resolvió la alerta"}
+      ]
+    },
+    {
+      "name": "metricas_diarias",
+      "description": "Métricas consolidadas por día para dashboard",
+      "columns": [
+        {"name": "fecha", "type": "DATE", "primary_key": true, "nullable": false, "description": "Fecha de las métricas"},
+        {"name": "ventas_total", "type": "DECIMAL(12,2)", "primary_key": false, "nullable": false, "description": "Total de ventas del día"},
+        {"name": "num_cuentas", "type": "INTEGER", "primary_key": false, "nullable": false, "description": "Número de cuentas cerradas"},
+        {"name": "num_pedidos", "type": "INTEGER", "primary_key": false, "nullable": false, "description": "Número de pedidos procesados"},
+        {"name": "ticket_promedio", "type": "DECIMAL(10,2)", "primary_key": false, "nullable": false, "description": "Ticket promedio"},
+        {"name": "productos_vendidos", "type": "INTEGER", "primary_key": false, "nullable": false, "description": "Cantidad total de productos vendidos"},
+        {"name": "tiempo_promedio_mesa", "type": "INTEGER", "primary_key": false, "nullable": true, "description": "Tiempo promedio de ocupación de mesa en minutos"},
+        {"name": "tiempo_promedio_pedido", "type": "INTEGER", "primary_key": false, "nullable": true, "description": "Tiempo promedio de preparación de pedidos en minutos"},
+        {"name": "propinas_total", "type": "DECIMAL(10,2)", "primary_key": false, "nullable": true, "description": "Total de propinas del día"},
+        {"name": "costo_materias_primas", "type": "DECIMAL(10,2)", "primary_key": false, "nullable": true, "description": "Costo total de materias primas utilizadas"},
+        {"name": "num_comensales_total", "type": "INTEGER", "primary_key": false, "nullable": true, "description": "Total de comensales atendidos"}
+      ]
+    },
+    {
+      "name": "parametro",
+      "description": "Parámetros de configuración del sistema con soporte multi-nivel",
+      "columns": [
+        {"name": "codigo_parametro", "type": "VARCHAR(20)", "primary_key": true, "nullable": false, "description": "Código del parámetro"},
+        {"name": "nombre", "type": "VARCHAR(100)", "primary_key": false, "nullable": false, "description": "Nombre descriptivo"},
+        {"name": "valor", "type": "VARCHAR(100)", "primary_key": false, "nullable": false, "description": "Valor del parámetro"},
+        {"name": "tipo_dato", "type": "VARCHAR(20)", "primary_key": false, "nullable": false, "description": "Tipo: string, integer, decimal, boolean"},
+        {"name": "descripcion", "type": "TEXT", "primary_key": false, "nullable": true, "description": "Descripción del parámetro"},
+        {"name": "categoria", "type": "VARCHAR(50)", "primary_key": false, "nullable": true, "description": "Categoría: modulos, interfaces, business_rules, modos"},
+        {"name": "nivel", "type": "VARCHAR(20)", "primary_key": false, "nullable": false, "description": "Nivel: sistema, modulo, entidad"},
+        {"name": "dependencias", "type": "TEXT", "primary_key": false, "nullable": true, "description": "JSON con códigos de parámetros dependientes"},
+        {"name": "impacto_performance", "type": "BOOLEAN", "primary_key": false, "nullable": false, "description": "Si el cambio impacta performance del sistema"},
+        {"name": "modificable", "type": "BOOLEAN", "primary_key": false, "nullable": false, "description": "Si el parámetro es modificable por usuario"},
+        {"name": "requiere_reinicio", "type": "BOOLEAN", "primary_key": false, "nullable": false, "description": "Si requiere reinicio para aplicar cambios"},
+        {"name": "valor_default", "type": "VARCHAR(100)", "primary_key": false, "nullable": false, "description": "Valor por defecto del parámetro"}
+      ]
+    },
+    {
+      "name": "configuracion_contextual",
+      "description": "Configuraciones temporales y contextuales que sobrescriben parámetros base",
+      "columns": [
+        {"name": "id_configuracion", "type": "INTEGER", "primary_key": true, "nullable": false, "description": "ID único de la configuración contextual"},
+        {"name": "contexto", "type": "VARCHAR(50)", "primary_key": false, "nullable": false, "description": "Contexto: turno_noche, fin_semana, evento_especial, etc."},
+        {"name": "parametro_codigo", "type": "VARCHAR(20)", "primary_key": false, "nullable": false, "foreign_key": {"table": "parametro", "column": "codigo_parametro"}, "description": "Parámetro a sobrescribir"},
+        {"name": "valor_override", "type": "VARCHAR(100)", "primary_key": false, "nullable": false, "description": "Valor temporal para el parámetro"},
+        {"name": "fecha_inicio", "type": "TIMESTAMP", "primary_key": false, "nullable": false, "description": "Inicio de vigencia"},
+        {"name": "fecha_fin", "type": "TIMESTAMP", "primary_key": false, "nullable": false, "description": "Fin de vigencia"},
+        {"name": "activa", "type": "BOOLEAN", "primary_key": false, "nullable": false, "description": "Si la configuración está activa"},
+        {"name": "descripcion", "type": "TEXT", "primary_key": false, "nullable": true, "description": "Descripción del contexto"},
+        {"name": "creado_por", "type": "INTEGER", "primary_key": false, "nullable": false, "foreign_key": {"table": "usuario", "column": "id_usuario"}, "description": "Usuario que creó la configuración"},
+        {"name": "fecha_creacion", "type": "TIMESTAMP", "primary_key": false, "nullable": false, "description": "Fecha de creación"}
+      ]
+    },
+    {
+      "name": "motivo",
+      "description": "Motivos para operaciones del sistema",
+      "columns": [
+        {"name": "id_motivo", "type": "INTEGER", "primary_key": true, "nullable": false, "description": "ID único del motivo"},
+        {"name": "descripcion", "type": "VARCHAR(200)", "primary_key": false, "nullable": false, "description": "Descripción del motivo"},
+        {"name": "categoria", "type": "VARCHAR(50)", "primary_key": false, "nullable": true, "description": "Categoría del motivo"},
+        {"name": "activo", "type": "BOOLEAN", "primary_key": false, "nullable": false, "description": "Si el motivo está activo"}
+      ]
+    },
+    {
+      "name": "sesion_qr",
+      "description": "Sesiones de acceso por código QR para self-service",
+      "columns": [
+        {"name": "id_sesion", "type": "UUID", "primary_key": true, "nullable": false, "description": "ID único de la sesión QR"},
+        {"name": "id_mesa", "type": "INTEGER", "primary_key": false, "nullable": false, "foreign_key": {"table": "mesa", "column": "id_mesa"}, "description": "Mesa asociada al QR"},
+        {"name": "codigo_qr", "type": "VARCHAR(50)", "primary_key": false, "nullable": false, "description": "Código QR único"},
+        {"name": "token_sesion", "type": "VARCHAR(255)", "primary_key": false, "nullable": false, "description": "Token de sesión para seguridad"},
+        {"name": "fecha_creacion", "type": "TIMESTAMP", "primary_key": false, "nullable": false, "description": "Fecha y hora de creación"},
+        {"name": "fecha_expiracion", "type": "TIMESTAMP", "primary_key": false, "nullable": true, "description": "Fecha de expiración de la sesión"},
+        {"name": "estado", "type": "VARCHAR(20)", "primary_key": false, "nullable": false, "description": "Estado: activa, expirada, cerrada"},
+        {"name": "ip_cliente", "type": "INET", "primary_key": false, "nullable": true, "description": "IP del cliente"},
+        {"name": "user_agent", "type": "TEXT", "primary_key": false, "nullable": true, "description": "User agent del navegador"},
+        {"name": "dispositivo_info", "type": "JSONB", "primary_key": false, "nullable": true, "description": "Información del dispositivo del cliente"},
+        {"name": "ubicacion_gps", "type": "POINT", "primary_key": false, "nullable": true, "description": "Ubicación GPS para validación"},
+        {"name": "num_accesos", "type": "INTEGER", "primary_key": false, "nullable": false, "description": "Número de accesos a la sesión"},
+        {"name": "ultima_actividad", "type": "TIMESTAMP", "primary_key": false, "nullable": false, "description": "Última actividad en la sesión"}
+      ]
+    },
+    {
+      "name": "evento_servicio",
+      "description": "Eventos de trazabilidad temporal del customer journey",
+      "columns": [
+        {"name": "id_evento", "type": "BIGSERIAL", "primary_key": true, "nullable": false, "description": "ID único del evento"},
+        {"name": "id_sesion", "type": "UUID", "primary_key": false, "nullable": true, "foreign_key": {"table": "sesion_qr", "column": "id_sesion"}, "description": "Sesión QR asociada"},
+        {"name": "id_cuenta", "type": "INTEGER", "primary_key": false, "nullable": true, "foreign_key": {"table": "cuenta", "column": "id_cuenta"}, "description": "Cuenta asociada"},
+        {"name": "tipo_evento", "type": "VARCHAR(30)", "primary_key": false, "nullable": false, "description": "Tipo de evento: qr_scan, menu_view, item_select, order_submit, etc."},
+        {"name": "timestamp_evento", "type": "TIMESTAMP", "primary_key": false, "nullable": false, "description": "Timestamp preciso del evento"},
+        {"name": "duracion_ms", "type": "INTEGER", "primary_key": false, "nullable": true, "description": "Duración en ms desde evento anterior"},
+        {"name": "metadatos", "type": "JSONB", "primary_key": false, "nullable": true, "description": "Datos específicos del evento"},
+        {"name": "contexto", "type": "JSONB", "primary_key": false, "nullable": true, "description": "Estado de la aplicación en ese momento"},
+        {"name": "geolocation", "type": "POINT", "primary_key": false, "nullable": true, "description": "Ubicación cuando ocurrió el evento"}
+      ]
+    },
+    {
+      "name": "carrito_temporal",
+      "description": "Carrito temporal antes de confirmar pedido (para analytics de abandono)",
+      "columns": [
+        {"name": "id_carrito", "type": "UUID", "primary_key": true, "nullable": false, "description": "ID único del carrito"},
+        {"name": "id_sesion", "type": "UUID", "primary_key": false, "nullable": false, "foreign_key": {"table": "sesion_qr", "column": "id_sesion"}, "description": "Sesión QR asociada"},
+        {"name": "producto_id", "type": "INTEGER", "primary_key": false, "nullable": false, "description": "ID del producto"},
+        {"name": "tipo_producto", "type": "VARCHAR(10)", "primary_key": false, "nullable": false, "description": "Tipo: comida, trago"},
+        {"name": "cantidad", "type": "INTEGER", "primary_key": false, "nullable": false, "description": "Cantidad del producto"},
+        {"name": "precio_unitario", "type": "DECIMAL(10,2)", "primary_key": false, "nullable": false, "description": "Precio unitario"},
+        {"name": "personalizaciones", "type": "JSONB", "primary_key": false, "nullable": true, "description": "Personalizaciones del producto"},
+        {"name": "fecha_agregado", "type": "TIMESTAMP", "primary_key": false, "nullable": false, "description": "Cuándo se agregó al carrito"},
+        {"name": "tiempo_decision_ms", "type": "INTEGER", "primary_key": false, "nullable": true, "description": "Tiempo que tardó en agregar este item"},
+        {"name": "abandonado", "type": "BOOLEAN", "primary_key": false, "nullable": false, "description": "Si fue abandonado sin confirmar"},
+        {"name": "convertido_pedido", "type": "BOOLEAN", "primary_key": false, "nullable": false, "description": "Si se convirtió en pedido real"}
+      ]
+    },
+    {
+      "name": "metricas_servicio_tiempo_real",
+      "description": "Métricas de servicio en tiempo real para analytics",
+      "columns": [
+        {"name": "id_metrica", "type": "BIGSERIAL", "primary_key": true, "nullable": false, "description": "ID único de la métrica"},
+        {"name": "fecha_hora", "type": "TIMESTAMP", "primary_key": false, "nullable": false, "description": "Timestamp de la métrica"},
+        {"name": "id_mesa", "type": "INTEGER", "primary_key": false, "nullable": true, "foreign_key": {"table": "mesa", "column": "id_mesa"}, "description": "Mesa asociada"},
+        {"name": "id_cuenta", "type": "INTEGER", "primary_key": false, "nullable": true, "foreign_key": {"table": "cuenta", "column": "id_cuenta"}, "description": "Cuenta asociada"},
+        {"name": "tiempo_qr_a_menu_ms", "type": "INTEGER", "primary_key": false, "nullable": true, "description": "Tiempo QR scan → ver menú"},
+        {"name": "tiempo_menu_a_primer_item_ms", "type": "INTEGER", "primary_key": false, "nullable": true, "description": "Tiempo ver menú → primer item al carrito"},
+        {"name": "tiempo_decision_total_ms", "type": "INTEGER", "primary_key": false, "nullable": true, "description": "Tiempo total de decisión"},
+        {"name": "tiempo_pedido_a_confirmacion_ms", "type": "INTEGER", "primary_key": false, "nullable": true, "description": "Tiempo submit → confirmación"},
+        {"name": "tiempo_confirmacion_a_cocina_ms", "type": "INTEGER", "primary_key": false, "nullable": true, "description": "Tiempo confirmación → llega a cocina"},
+        {"name": "tiempo_cocina_preparacion_ms", "type": "INTEGER", "primary_key": false, "nullable": true, "description": "Tiempo cocina recibe → listo"},
+        {"name": "tiempo_listo_a_entrega_ms", "type": "INTEGER", "primary_key": false, "nullable": true, "description": "Tiempo listo → entregado"},
+        {"name": "tiempo_total_servicio_ms", "type": "INTEGER", "primary_key": false, "nullable": true, "description": "Tiempo total QR scan → entrega"},
+        {"name": "num_items_carrito", "type": "INTEGER", "primary_key": false, "nullable": true, "description": "Número de items en el carrito"},
+        {"name": "num_modificaciones_carrito", "type": "INTEGER", "primary_key": false, "nullable": true, "description": "Número de modificaciones al carrito"},
+        {"name": "items_abandonados", "type": "INTEGER", "primary_key": false, "nullable": true, "description": "Items abandonados sin confirmar"},
+        {"name": "valor_pedido", "type": "DECIMAL(10,2)", "primary_key": false, "nullable": true, "description": "Valor total del pedido"},
+        {"name": "hora_dia", "type": "INTEGER", "primary_key": false, "nullable": true, "description": "Hora del día (0-23)"},
+        {"name": "dia_semana", "type": "INTEGER", "primary_key": false, "nullable": true, "description": "Día de la semana (1-7)"},
+        {"name": "es_fin_semana", "type": "BOOLEAN", "primary_key": false, "nullable": true, "description": "Si es fin de semana"},
+        {"name": "ocupacion_local", "type": "DECIMAL(4,2)", "primary_key": false, "nullable": true, "description": "% ocupación del local en ese momento"},
+        {"name": "clima_externo", "type": "VARCHAR(20)", "primary_key": false, "nullable": true, "description": "Condición climática"}
+      ]
+    },
+    {
+      "name": "agregaciones_analytics",
+      "description": "Agregaciones diarias para dashboard analytics",
+      "columns": [
+        {"name": "fecha", "type": "DATE", "primary_key": true, "nullable": false, "description": "Fecha de las métricas"},
+        {"name": "total_scans_qr", "type": "INTEGER", "primary_key": false, "nullable": true, "description": "Total de scans QR del día"},
+        {"name": "sesiones_convertidas", "type": "INTEGER", "primary_key": false, "nullable": true, "description": "Sesiones que hicieron pedido"},
+        {"name": "tasa_conversion", "type": "DECIMAL(5,2)", "primary_key": false, "nullable": true, "description": "% de conversión"},
+        {"name": "avg_tiempo_decision_ms", "type": "INTEGER", "primary_key": false, "nullable": true, "description": "Tiempo promedio de decisión"},
+        {"name": "avg_tiempo_servicio_total_ms", "type": "INTEGER", "primary_key": false, "nullable": true, "description": "Tiempo promedio total de servicio"},
+        {"name": "avg_tiempo_preparacion_ms", "type": "INTEGER", "primary_key": false, "nullable": true, "description": "Tiempo promedio de preparación"},
+        {"name": "hora_pico_qr", "type": "INTEGER", "primary_key": false, "nullable": true, "description": "Hora con más scans QR"},
+        {"name": "items_mas_pedidos_qr", "type": "JSONB", "primary_key": false, "nullable": true, "description": "Top productos pedidos por QR"},
+        {"name": "abandonos_carrito_count", "type": "INTEGER", "primary_key": false, "nullable": true, "description": "Número de carritos abandonados"},
+        {"name": "pedidos_qr_vs_mesero", "type": "JSONB", "primary_key": false, "nullable": true, "description": "Comparativa pedidos QR vs mesero"},
+        {"name": "satisfaccion_promedio", "type": "DECIMAL(3,2)", "primary_key": false, "nullable": true, "description": "Satisfacción promedio del día"},
+        {"name": "prediccion_demanda_proxima_hora", "type": "JSONB", "primary_key": false, "nullable": true, "description": "Predicciones ML de demanda"},
+        {"name": "recomendaciones_operativas", "type": "JSONB", "primary_key": false, "nullable": true, "description": "Recomendaciones automáticas"}
+      ]
+    },
+    {
+      "name": "features_ml",
+      "description": "Features extraídas para machine learning y data science",
+      "columns": [
+        {"name": "id_feature", "type": "BIGSERIAL", "primary_key": true, "nullable": false, "description": "ID único del feature"},
+        {"name": "id_sesion", "type": "UUID", "primary_key": false, "nullable": true, "foreign_key": {"table": "sesion_qr", "column": "id_sesion"}, "description": "Sesión QR asociada"},
+        {"name": "timestamp_calculo", "type": "TIMESTAMP", "primary_key": false, "nullable": false, "description": "Cuándo se calcularon los features"},
+        {"name": "hora_pedido", "type": "INTEGER", "primary_key": false, "nullable": true, "description": "Hora del pedido"},
+        {"name": "dia_semana", "type": "INTEGER", "primary_key": false, "nullable": true, "description": "Día de la semana"},
+        {"name": "mes", "type": "INTEGER", "primary_key": false, "nullable": true, "description": "Mes del año"},
+        {"name": "es_fin_semana", "type": "BOOLEAN", "primary_key": false, "nullable": true, "description": "Si es fin de semana"},
+        {"name": "es_feriado", "type": "BOOLEAN", "primary_key": false, "nullable": true, "description": "Si es feriado"},
+        {"name": "tiempo_total_decision_minutes", "type": "DECIMAL(8,2)", "primary_key": false, "nullable": true, "description": "Tiempo total de decisión en minutos"},
+        {"name": "num_items_carrito", "type": "INTEGER", "primary_key": false, "nullable": true, "description": "Número de items en carrito"},
+        {"name": "num_modificaciones", "type": "INTEGER", "primary_key": false, "nullable": true, "description": "Número de modificaciones"},
+        {"name": "tiempo_entre_items_avg_seconds", "type": "DECIMAL(8,2)", "primary_key": false, "nullable": true, "description": "Tiempo promedio entre items"},
+        {"name": "patron_navegacion", "type": "TEXT", "primary_key": false, "nullable": true, "description": "Secuencia de categorías visitadas"},
+        {"name": "ocupacion_mesa_sector", "type": "DECIMAL(4,2)", "primary_key": false, "nullable": true, "description": "% ocupación del sector"},
+        {"name": "temperatura_exterior", "type": "DECIMAL(4,1)", "primary_key": false, "nullable": true, "description": "Temperatura exterior"},
+        {"name": "num_personas_estimadas", "type": "INTEGER", "primary_key": false, "nullable": true, "description": "Número estimado de personas"},
+        {"name": "categoria_preferida", "type": "VARCHAR(50)", "primary_key": false, "nullable": true, "description": "Categoría más visitada"},
+        {"name": "rango_precio_preferido", "type": "VARCHAR(20)", "primary_key": false, "nullable": true, "description": "Rango de precio preferido"},
+        {"name": "tiene_restricciones_alimentarias", "type": "BOOLEAN", "primary_key": false, "nullable": true, "description": "Si tiene restricciones alimentarias"},
+        {"name": "valor_pedido_final", "type": "DECIMAL(10,2)", "primary_key": false, "nullable": true, "description": "Valor final del pedido"},
+        {"name": "satisfaccion_servicio", "type": "INTEGER", "primary_key": false, "nullable": true, "description": "Rating de satisfacción (1-5)"},
+        {"name": "probabilidad_regreso", "type": "DECIMAL(4,3)", "primary_key": false, "nullable": true, "description": "Probabilidad calculada de regreso"}
+      ]
+    }
+  ],
+  "relationships": [
+    {"from_table": "mesa", "from_column": "sector", "to_table": "sector", "to_column": "id_sector", "type": "many_to_one"},
+    {"from_table": "mesa", "from_column": "cuenta_activa", "to_table": "cuenta", "to_column": "id_cuenta", "type": "one_to_one"},
+    {"from_table": "cuenta", "from_column": "mesa_id", "to_table": "mesa", "to_column": "id_mesa", "type": "many_to_one"},
+    {"from_table": "cuenta", "from_column": "mesero_id", "to_table": "usuario", "to_column": "id_usuario", "type": "many_to_one"},
+    {"from_table": "cuenta", "from_column": "cliente_principal", "to_table": "cliente", "to_column": "rut", "type": "many_to_one"},
+    {"from_table": "cuenta", "from_column": "metodo_pago", "to_table": "metodo_pago", "to_column": "id_metodo", "type": "many_to_one"},
+    {"from_table": "cuenta_cliente", "from_column": "id_cuenta", "to_table": "cuenta", "to_column": "id_cuenta", "type": "many_to_one"},
+    {"from_table": "cuenta_cliente", "from_column": "cliente_id", "to_table": "cliente", "to_column": "rut", "type": "many_to_one"},
+    {"from_table": "pedido", "from_column": "id_cuenta", "to_table": "cuenta", "to_column": "id_cuenta", "type": "many_to_one"},
+    {"from_table": "pedido", "from_column": "mesero_id", "to_table": "usuario", "to_column": "id_usuario", "type": "many_to_one"},
+    {"from_table": "pedido", "from_column": "cocinero_id", "to_table": "usuario", "to_column": "id_usuario", "type": "many_to_one"},
+    {"from_table": "pedido_detalle", "from_column": "id_pedido", "to_table": "pedido", "to_column": "id_pedido", "type": "many_to_one"},
+    {"from_table": "pedido_detalle", "from_column": "id_cuenta_cliente", "to_table": "cuenta_cliente", "to_column": "id_cuenta_cliente", "type": "many_to_one"},
+    {"from_table": "pedido_detalle", "from_column": "cocinero_asignado", "to_table": "usuario", "to_column": "id_usuario", "type": "many_to_one"},
+    {"from_table": "cuenta_producto", "from_column": "id_cuenta", "to_table": "cuenta", "to_column": "id_cuenta", "type": "many_to_one"},
+    {"from_table": "cuenta_producto", "from_column": "pedido_id", "to_table": "pedido", "to_column": "id_pedido", "type": "many_to_one"},
+    {"from_table": "cuenta_producto", "from_column": "id_cuenta_cliente", "to_table": "cuenta_cliente", "to_column": "id_cuenta_cliente", "type": "many_to_one"},
+    {"from_table": "cuenta_corriente", "from_column": "cliente_id", "to_table": "cliente", "to_column": "rut", "type": "many_to_one"},
+    {"from_table": "cuenta_corriente", "from_column": "cuenta_id", "to_table": "cuenta", "to_column": "id_cuenta", "type": "many_to_one"},
+    {"from_table": "cuenta_corriente", "from_column": "usuario_id", "to_table": "usuario", "to_column": "id_usuario", "type": "many_to_one"},
+    {"from_table": "materia_prima", "from_column": "unidad_medida", "to_table": "unidad_medida", "to_column": "id_unidad", "type": "many_to_one"},
+    {"from_table": "movimiento_inventario", "from_column": "id_materia", "to_table": "materia_prima", "to_column": "id_materia", "type": "many_to_one"},
+    {"from_table": "movimiento_inventario", "from_column": "usuario_id", "to_table": "usuario", "to_column": "id_usuario", "type": "many_to_one"},
+    {"from_table": "movimiento_inventario", "from_column": "pedido_id", "to_table": "pedido", "to_column": "id_pedido", "type": "many_to_one"},
+    {"from_table": "receta", "from_column": "usuario_creador", "to_table": "usuario", "to_column": "id_usuario", "type": "many_to_one"},
+    {"from_table": "receta_materia", "from_column": "id_receta", "to_table": "receta", "to_column": "id_receta", "type": "many_to_one"},
+    {"from_table": "receta_materia", "from_column": "id_materia", "to_table": "materia_prima", "to_column": "id_materia", "type": "many_to_one"},
+    {"from_table": "comida", "from_column": "receta", "to_table": "receta", "to_column": "id_receta", "type": "many_to_one"},
+    {"from_table": "alerta_stock", "from_column": "id_materia", "to_table": "materia_prima", "to_column": "id_materia", "type": "many_to_one"},
+    {"from_table": "alerta_stock", "from_column": "usuario_resuelve", "to_table": "usuario", "to_column": "id_usuario", "type": "many_to_one"},
+    {"from_table": "configuracion_contextual", "from_column": "parametro_codigo", "to_table": "parametro", "to_column": "codigo_parametro", "type": "many_to_one"},
+    {"from_table": "configuracion_contextual", "from_column": "creado_por", "to_table": "usuario", "to_column": "id_usuario", "type": "many_to_one"}
+  ],
+  "indexes": [
+    {"table": "cuenta", "columns": ["mesa_id", "estado"], "name": "idx_cuenta_mesa_estado"},
+    {"table": "cuenta_cliente", "columns": ["id_cuenta", "orden_llegada"], "name": "idx_cuenta_cliente_orden"},
+    {"table": "cuenta_cliente", "columns": ["id_cuenta", "presente"], "name": "idx_cuenta_cliente_presente"},
+    {"table": "pedido", "columns": ["id_cuenta", "estado"], "name": "idx_pedido_cuenta_estado"},
+    {"table": "pedido", "columns": ["fecha_hora", "estado"], "name": "idx_pedido_fecha_estado"},
+    {"table": "pedido_detalle", "columns": ["id_pedido", "estado_item"], "name": "idx_pedido_detalle_estado"},
+    {"table": "pedido_detalle", "columns": ["id_cuenta_cliente", "estado_item"], "name": "idx_pedido_detalle_cliente"},
+    {"table": "pedido_detalle", "columns": ["requiere_cocina", "estado_item"], "name": "idx_pedido_detalle_cocina"},
+    {"table": "cuenta_producto", "columns": ["id_cuenta", "id_cuenta_cliente"], "name": "idx_cuenta_producto_cliente"},
+    {"table": "mesa", "columns": ["estado", "sector"], "name": "idx_mesa_estado_sector"},
+    {"table": "movimiento_inventario", "columns": ["fecha_hora", "tipo_movimiento"], "name": "idx_movimiento_fecha_tipo"},
+    {"table": "alerta_stock", "columns": ["estado", "fecha_alerta"], "name": "idx_alerta_estado_fecha"}
+  ],
+  "constraints": [
+    {"table": "cuenta_cliente", "type": "check", "name": "chk_orden_llegada_positivo", "condition": "orden_llegada > 0"},
+    {"table": "cuenta_cliente", "type": "unique", "name": "unq_cuenta_posicion", "columns": ["id_cuenta", "posicion_mesa"]},
+    {"table": "cuenta_cliente", "type": "unique", "name": "unq_cuenta_orden", "columns": ["id_cuenta", "orden_llegada"]},
+    {"table": "pedido_detalle", "type": "check", "name": "chk_tipo_producto", "condition": "tipo_producto IN ('comida', 'trago')"},
+    {"table": "pedido_detalle", "type": "check", "name": "chk_prioridad_entrega", "condition": "prioridad_entrega IN ('inmediato', 'normal', 'con_comida')"},
+    {"table": "cuenta", "type": "check", "name": "chk_num_comensales", "condition": "num_comensales > 0"},
+    {"table": "mesa", "type": "check", "name": "chk_estado_mesa", "condition": "estado IN ('libre', 'ocupada', 'reservada', 'fuera_servicio')"},
+    {"table": "usuario", "type": "check", "name": "chk_rol_usuario", "condition": "rol IN ('admin', 'mesero', 'cocinero', 'cajero')"}
+  ]
+}

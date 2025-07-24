@@ -1,0 +1,49 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Environment variables
+.env
+.env.local
+.env.production
+
+# Database
+*.db
+*.sqlite
+
+# Build outputs
+dist/
+build/
+*.min.js
+*.min.css
+
+# AWS
+.aws/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Windows specific
+*.exe
+*.msi
+*.dll
