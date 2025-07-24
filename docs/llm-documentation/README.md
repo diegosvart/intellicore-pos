@@ -54,7 +54,189 @@ Esta documentación está **específicamente optimizada para LLMs** para permiti
 
 ---
 
-## 🚀 QUICK START PARA LLMs
+## � GUÍA DE INICIO TÉCNICA
+
+### CONFIGURACIÓN DEL ENTORNO DE DESARROLLO
+
+#### 1. **REQUISITOS PREVIOS**
+
+##### Software necesario:
+- **VS Code** (Visual Studio Code)
+- **Continue Extension** para VS Code
+- **Ollama** instalado y configurado
+- **Git** para control de versiones
+- **Node.js** (para frontend) y **Python** (para backend)
+
+#### 2. **CONFIGURACIÓN DE OLLAMA**
+
+##### Instalar y configurar modelos LLM:
+```bash
+# Instalar DeepSeek Coder
+ollama pull deepseek-coder:6.7b
+
+# Instalar Gemma 3 (modelo en español)
+ollama pull gemma2:9b
+
+# Verificar modelos instalados
+ollama list
+```
+
+##### Iniciar servicio Ollama:
+```bash
+# Windows
+ollama serve
+
+# Verificar que esté corriendo en localhost:11434
+curl http://localhost:11434/api/version
+```
+
+#### 3. **CONFIGURACIÓN DE VS CODE + CONTINUE**
+
+##### Instalar Continue Extension:
+1. Abrir VS Code
+2. Ir a Extensions (Ctrl+Shift+X)
+3. Buscar "Continue" e instalar
+4. Reiniciar VS Code
+
+##### Configurar Continue para usar Ollama:
+Crear/editar archivo `.continue/config.json`:
+```json
+{
+  "models": [
+    {
+      "title": "DeepSeek Coder",
+      "provider": "ollama",
+      "model": "deepseek-coder:6.7b",
+      "apiBase": "http://localhost:11434"
+    },
+    {
+      "title": "Gemma 3 Español",
+      "provider": "ollama", 
+      "model": "gemma2:9b",
+      "apiBase": "http://localhost:11434"
+    }
+  ],
+  "tabAutocompleteModel": {
+    "title": "DeepSeek Coder Autocomplete",
+    "provider": "ollama",
+    "model": "deepseek-coder:6.7b",
+    "apiBase": "http://localhost:11434"
+  },
+  "allowAnonymousTelemetry": false
+}
+```
+
+#### 4. **CONFIGURACIÓN DEL PROYECTO INTELLICORE POS**
+
+##### Clonar y configurar repositorio:
+```bash
+# Clonar proyecto
+git clone <url-del-repositorio> intellicore-pos
+cd intellicore-pos
+
+# Verificar estructura
+ls -la docs/llm-documentation/
+
+# Abrir en VS Code
+code .
+```
+
+##### Configurar variables de entorno:
+Crear archivo `.env` en la raíz del proyecto:
+```env
+# Base de datos
+DATABASE_URL=postgresql://usuario:password@localhost:5432/intellicore_pos
+
+# API Configuration
+API_HOST=localhost
+API_PORT=8000
+
+# Ollama Configuration
+OLLAMA_BASE_URL=http://localhost:11434
+OLLAMA_MODEL_CODE=deepseek-coder:6.7b
+OLLAMA_MODEL_CHAT=gemma2:9b
+```
+
+#### 5. **VERIFICACIÓN DE LA CONFIGURACIÓN**
+
+##### Test de Ollama + Continue:
+1. Abrir cualquier archivo `.py` o `.js` en VS Code
+2. Presionar `Ctrl+I` para abrir Continue chat
+3. Escribir: "Explica la arquitectura de IntelliCore POS usando la documentación LLM"
+4. Continue debería responder usando los archivos de `docs/llm-documentation/`
+
+##### Test de autocompletado:
+1. Crear nuevo archivo `test.py`
+2. Escribir: `# Crear endpoint para dashboard de métricas`
+3. Presionar Enter y esperar sugerencias de DeepSeek Coder
+4. El autocompletado debería sugerir código relacionado con FastAPI
+
+#### 6. **CONFIGURACIÓN AVANZADA PARA INTELLICORE POS**
+
+##### Personalizar prompts de Continue:
+Crear archivo `.continue/custom_prompts.md`:
+```markdown
+# CONTEXTO INTELLICORE POS
+Eres un asistente especializado en el desarrollo del sistema IntelliCore POS.
+
+## DOCUMENTACIÓN DISPONIBLE
+- docs/llm-documentation/MODELO_BD_COMPLETO_LLM.md: Arquitectura completa
+- docs/llm-documentation/CASOS_USO_DETALLADOS.md: Casos de uso del negocio  
+- docs/llm-documentation/QUERIES_CASOS_USO.sql: Queries SQL listos para usar
+- docs/llm-documentation/DICCIONARIO_COMPLETO.json: Estructura de datos
+
+## INSTRUCCIONES
+1. SIEMPRE consulta la documentación LLM antes de responder
+2. Usa nomenclatura exacta de las tablas del DICCIONARIO_COMPLETO.json
+3. Reutiliza queries existentes de QUERIES_CASOS_USO.sql cuando sea posible
+4. Sigue los patrones establecidos en los casos de uso documentados
+
+## TECNOLOGÍAS DEL PROYECTO
+- Backend: FastAPI + PostgreSQL
+- Frontend: Angular/React
+- Base de datos: PostgreSQL con arquitectura de 5 capas
+- Analytics: Sistema QR con ML para predicción de demanda
+```
+
+##### Atajos de teclado recomendados para VS Code:
+```json
+// En settings.json de VS Code
+{
+  "keyboard.shortcuts": [
+    {
+      "key": "ctrl+shift+i",
+      "command": "continue.continueGUIView.focus",
+      "when": "editorTextFocus"
+    },
+    {
+      "key": "ctrl+shift+m", 
+      "command": "continue.acceptVerticalDiffBlock",
+      "when": "editorTextFocus"
+    }
+  ]
+}
+```
+
+### WORKFLOW RECOMENDADO CON CONTINUE
+
+#### Para nuevas funcionalidades:
+1. **Abrir Continue Chat** (`Ctrl+I`)
+2. **Solicitar contexto**: "Explica el CU-XXX de CASOS_USO_DETALLADOS.md"
+3. **Pedir implementación**: "Implementa este caso de uso usando los queries de QUERIES_CASOS_USO.sql"
+4. **Revisar y ajustar**: Hacer ajustes específicos según necesidades
+
+#### Para debugging:
+1. **Seleccionar código problemático**
+2. **Continue Chat**: "Analiza este código considerando la arquitectura de IntelliCore POS"
+3. **Solicitar solución**: "Propón una solución usando los patrones documentados"
+
+#### Para optimización:
+1. **Continue Chat**: "Optimiza este query basándote en QUERIES_CASOS_USO.sql"
+2. **Pedir alternativas**: "Sugiere mejoras de rendimiento siguiendo las buenas prácticas documentadas"
+
+---
+
+## �🚀 QUICK START PARA LLMs
 
 ### Protocolo de Consulta Recomendado
 
