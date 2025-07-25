@@ -50,7 +50,7 @@ AEDD es una metodología de desarrollo de software que integra modelos de lengua
 #### **2. MODELOS ESPECIALIZADOS (Role-Based LLMs)**
 - **Arquitecto Principal (DeepSeek):** Clean Architecture, SOLID, escalabilidad
 - **Desarrollador Senior (Qwen3):** FastAPI, Angular, PostgreSQL, testing
-- **Analista de Negocio (Gemma3):** Casos de uso POS, reglas de negocio
+- **Analista de Negocio (Llama3.1):** Casos de uso POS, reglas de negocio
 - **Especialista Seguridad (Gemma3-ES):** PCI DSS, OWASP, seguridad financiera
 
 #### **3. COMANDOS EVOLUTIVOS (Auto-Development Commands)**
@@ -200,7 +200,7 @@ git log --oneline -5
 #### 🎯 **NUEVO: Seleccionar modelo especializado según metodología AEDD:**
 - **Arquitecto Principal (DeepSeek)** - Para decisiones de diseño y arquitectura siguiendo Clean Architecture
 - **Desarrollador Senior (Qwen3)** - Para implementación y optimización de código siguiendo patterns del proyecto
-- **Analista de Negocio (Gemma3)** - Para validación de casos de uso POS y reglas de negocio
+- **Analista de Negocio (Llama3.1)** - Para validación de casos de uso POS y reglas de negocio
 - **Especialista Seguridad (Gemma3-ES)** - Para análisis de seguridad crítica PCI DSS
 
 **Principio AEDD:** Cada modelo tiene contexto automático del proyecto y especialización específica, eliminando la necesidad de re-explicar el contexto en cada interacción.
