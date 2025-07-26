@@ -3,7 +3,7 @@
 
 ---
 
-## 🎯 **METADATOS DEL MODELO**
+## **METADATOS DEL MODELO**
 
 - **Versión:** 3.0
 - **Tablas:** 25 (base) + 5 (pago distribuido) = 30 total
@@ -15,58 +15,58 @@
 
 ---
 
-## 🏗️ **ARQUITECTURA EN CAPAS**
+## **ARQUITECTURA EN CAPAS**
 
 ### **CAPA 1: Core Business (Operaciones básicas)**
 ```
-✅ cliente - Gestión de clientes registrados
-✅ mesa - Control de mesas y estados  
-✅ sector - Organización espacial del establecimiento
-✅ usuario - Sistema de roles y permisos
-✅ cuenta - Facturación central del negocio
-✅ metodo_pago - Formas de pago disponibles
+cliente - Gestión de clientes registrados
+mesa - Control de mesas y estados  
+sector - Organización espacial del establecimiento
+usuario - Sistema de roles y permisos
+cuenta - Facturación central del negocio
+metodo_pago - Formas de pago disponibles
 ```
 
 ### **CAPA 2: Catálogo y Operaciones**
 ```
-✅ comida - Platos del menú con costos
-✅ trago - Bebidas con graduación y volumen
-✅ receta - Preparaciones con materias primas
-✅ materia_prima - Inventario de ingredientes
-✅ unidad_medida - Sistema de medidas
-✅ cuenta_producto - Detalle de facturación
+comida - Platos del menú con costos
+trago - Bebidas con graduación y volumen
+receta - Preparaciones con materias primas
+materia_prima - Inventario de ingredientes
+unidad_medida - Sistema de medidas
+cuenta_producto - Detalle de facturación
 ```
 
 ### **CAPA 3: Operaciones Avanzadas**
 ```
-✅ cuenta_cliente - Multi-cliente por mesa
-✅ pedido - Flujo hacia cocina
-✅ pedido_detalle - Items individuales del pedido
-✅ movimiento_inventario - Control de stock
-✅ alerta_stock - Notificaciones automáticas
-✅ cuenta_corriente - Crédito de clientes
+cuenta_cliente - Multi-cliente por mesa
+pedido - Flujo hacia cocina
+pedido_detalle - Items individuales del pedido
+movimiento_inventario - Control de stock
+alerta_stock - Notificaciones automáticas
+cuenta_corriente - Crédito de clientes
 ```
 
 ### **CAPA 4: QR Self-Service**
 ```
-✅ sesion_qr - Sesiones de autoservicio
-✅ evento_servicio - Customer journey tracking
-✅ carrito_temporal - Análisis de abandono
-✅ metricas_servicio_tiempo_real - Performance en vivo
+sesion_qr - Sesiones de autoservicio
+evento_servicio - Customer journey tracking
+carrito_temporal - Análisis de abandono
+metricas_servicio_tiempo_real - Performance en vivo
 ```
 
 ### **CAPA 5: Analytics & ML**
 ```
-✅ agregaciones_analytics - Dashboard metrics
-✅ features_ml - Variables para machine learning
-✅ metricas_diarias - Consolidación histórica
-✅ parametro - Configuraciones del sistema
-✅ motivo - Catálogo de razones operativas
+agregaciones_analytics - Dashboard metrics
+features_ml - Variables para machine learning
+metricas_diarias - Consolidación histórica
+parametro - Configuraciones del sistema
+motivo - Catálogo de razones operativas
 ```
 
 ---
 
-## 🎯 **CASOS DE USO PRINCIPALES**
+## **CASOS DE USO PRINCIPALES**
 
 ### **1. Dashboard Gerencial**
 **Propósito:** Monitoreo en tiempo real del negocio
@@ -107,7 +107,7 @@
 
 ---
 
-## 💳 **FLUJO DE PAGO DISTRIBUIDO**
+## **FLUJO DE PAGO DISTRIBUIDO**
 
 ### **Problema Resuelto:**
 El modelo tradicional permite solo **un pago por cuenta**. El v3.0 soporta **múltiples pagadores** en la misma mesa.
@@ -128,7 +128,7 @@ cuenta_estado_pago (control de completitud)
 
 ---
 
-## 📊 **ANALYTICS Y ML INTEGRADO**
+## **ANALYTICS Y ML INTEGRADO**
 
 ### **Real-time Analytics:**
 - **evento_servicio:** Cada acción del cliente timestampeada
@@ -153,7 +153,7 @@ Kitchen Preparation → Ready Notification → Delivered
 
 ---
 
-## 🔧 **CONFIGURACIÓN MODULAR**
+## **CONFIGURACIÓN MODULAR**
 
 ### **Sistema de Parámetros:**
 La tabla `parametro` permite habilitar/deshabilitar funcionalidades:
@@ -174,23 +174,23 @@ REAL_TIME_ANALYTICS = true
 
 ---
 
-## 🎯 **DIFERENCIADORES COMPETITIVOS**
+## **DIFERENCIADORES COMPETITIVOS**
 
 ### **vs Competencia Tradicional (Square, Toast):**
-1. ✅ **QR Self-Service nativo** (no solo menú digital)
-2. ✅ **Split billing automático** (pago individual desde móvil)
-3. ✅ **Analytics predictivo** (ML integrado desde día 1)
-4. ✅ **Customer journey completo** (trazabilidad total)
+1. **QR Self-Service nativo** (no solo menú digital)
+2. **Split billing automático** (pago individual desde móvil)
+3. **Analytics predictivo** (ML integrado desde día 1)
+4. **Customer journey completo** (trazabilidad total)
 
 ### **vs Soluciones QR Básicas:**
-1. ✅ **Pago integrado** (no redirección externa)
-2. ✅ **Multi-cliente por mesa** (no un QR = una persona)
-3. ✅ **Analytics avanzado** (no solo pedidos básicos)
-4. ✅ **Configurabilidad total** (módulos enable/disable)
+1. **Pago integrado** (no redirección externa)
+2. **Multi-cliente por mesa** (no un QR = una persona)
+3. **Analytics avanzado** (no solo pedidos básicos)
+4. **Configurabilidad total** (módulos enable/disable)
 
 ---
 
-## 📈 **MÉTRICAS DE COMPLEJIDAD**
+## **MÉTRICAS DE COMPLEJIDAD**
 
 | Aspecto | Métrica | Valor |
 |---------|---------|-------|
@@ -203,7 +203,7 @@ REAL_TIME_ANALYTICS = true
 
 ---
 
-## 🔄 **EVOLUCIÓN Y VERSIONADO**
+## **EVOLUCIÓN Y VERSIONADO**
 
 ### **Historial:**
 - **v1.0:** Modelo básico (16 tablas) - POS tradicional
@@ -218,7 +218,7 @@ REAL_TIME_ANALYTICS = true
 
 ---
 
-## 💡 **INSTRUCCIONES PARA LLM**
+## **INSTRUCCIONES PARA LLM**
 
 ### **CUANDO UN USUARIO PREGUNTA SOBRE:**
 
@@ -252,7 +252,7 @@ REAL_TIME_ANALYTICS = true
 
 ---
 
-## 🎯 **CONCLUSIÓN**
+## **CONCLUSIÓN**
 
 Este modelo de datos está diseñado para ser la base de una **plataforma inteligente de comercio**, no solo un POS tradicional. La complejidad adicional se justifica por:
 
