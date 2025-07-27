@@ -48,7 +48,7 @@ Usa: /start-session [tipo] [descripción específica de mejora]"
 
 **Para uso eficiente, carga solo:**
 1. Este contexto maestro (base) 
-2. AEDD_NAVIGATOR.md (routing inteligente + preparación automática + onboarding)
+2. AEDD_NAVIGATOR.md (routing inteligente optimizado + sistema modular + onboarding)
 3. PROJECT_OVERVIEW.md (si usuario nuevo detectado)
 4. Módulos específicos según sesión (auto-cargados por navigator)
 
@@ -129,7 +129,13 @@ Shared Services       Analytics UI       Cross-Vertical Data
 ### **Estructura Optimizada (Token-Efficient)**
 ```
 CONTEXTO_MAESTRO.md (este archivo) ← Base esencial + contención (3,200 tokens)
-├── AEDD_NAVIGATOR.md ← Router + Git automation (3,800 tokens)
+├── AEDD_NAVIGATOR.md ← Router optimizado + sistema modular (500 tokens)
+│   ├── NAVIGATOR_ONBOARDING.md ← Flujos nuevos usuarios (800 tokens)
+│   ├── NAVIGATOR_GIT_FLOW.md ← Scripts Git Flow completos (1,200 tokens)  
+│   ├── NAVIGATOR_SESSION_HISTORY.md ← Historial sesiones (600 tokens)
+│   ├── NAVIGATOR_EXAMPLES.md ← Ejemplos detallados (1,000 tokens)
+│   ├── NAVIGATOR_SCRIPTS.md ← Scripts PowerShell/Bash (1,500 tokens)
+│   └── NAVIGATOR_METRICS.md ← KPIs y métricas (400 tokens)
 ├── CONTAINMENT_SYSTEM.md ← Sistema de contención contextual (2,400 tokens)
 ├── ESPECIALIZACIONES.md ← Roles LLM (1,800 tokens)  
 ├── PATRONES_CODIGO.md ← Templates código (2,500 tokens)
@@ -140,8 +146,22 @@ CONTEXTO_MAESTRO.md (este archivo) ← Base esencial + contención (3,200 tokens
 └── CROSS_MODULE_VALIDATOR.md ← Validación automática (2,100 tokens)
 ```
 
-**Eficiencia:** 80% reducción vs documentación monolítica (de ~20,000 a ~5,000 tokens por sesión)
+**Eficiencia:** 87% reducción en Navigator principal (de ~4,000 a ~500 tokens) + carga contextual inteligente
+**Sistema Modular Navigator:** Carga solo módulos necesarios según detección automática de intención
 **Nuevo:** Sistema de contención contextual que mantiene foco en iteración del proyecto
+
+### **Navegación Inteligente del Navigator**
+El sistema Navigator optimizado detecta automáticamente:
+- **Usuarios nuevos** → Carga NAVIGATOR_ONBOARDING.md + PROJECT_OVERVIEW.md
+- **Nueva iteración** → Carga NAVIGATOR_GIT_FLOW.md + validaciones automáticas
+- **Consulta historial** → Carga NAVIGATOR_SESSION_HISTORY.md + análisis Git
+- **Desarrollo específico** → Carga módulos especializados según contexto
+
+**Beneficios de la modularización:**
+- Precisión contextual: Solo carga lo necesario para cada tipo de sesión
+- Eficiencia de tokens: 85-90% reducción vs carga completa
+- Mantenibilidad: Cada módulo especializado evoluciona independientemente
+- Escalabilidad: Fácil agregar nuevos módulos especializados
 
 ### **Referencias Legacy (Solo si Necesarias)**
 - `docs/llm-documentation/CASOS_USO_DETALLADOS.md` - 10 casos de uso completos
