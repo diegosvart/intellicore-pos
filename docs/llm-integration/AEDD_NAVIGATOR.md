@@ -9,6 +9,11 @@ Sistema de routing inteligente que actúa como punto de entrada único para la m
 /project-overview                    # Para nuevos usuarios
 /verify-environment <descripción>     # Validación Git Flow
 /git-flow-status                    # Estado del repositorio
+
+# COMANDOS DE METODOLOGÍA DE DESARROLLO
+/start-development <componente> <característica>    # Inicia desarrollo estructurado
+/check-development-status <componente>             # Estado de desarrollo por componente
+/continue-development <fase> <componente>          # Continúa en fase específica
 ```
 
 ## DETECCIÓN AUTOMÁTICA Y ROUTING
@@ -18,6 +23,7 @@ Sistema de routing inteligente que actúa como punto de entrada único para la m
 |------|----------------|--------|
 | **Nuevo Usuario** | "¿qué es?", "explica", "overview", "información" | → [NAVIGATOR_ONBOARDING.md](NAVIGATOR_ONBOARDING.md) |
 | **Nueva Iteración** | "implementar", "crear", "agregar", "desarrollar" | → [NAVIGATOR_GIT_FLOW.md](NAVIGATOR_GIT_FLOW.md) |
+| **Desarrollo Metodológico** | "quiero trabajar en", "continuar desarrollo", "estado desarrollo" | → [NAVIGATOR_DEVELOPMENT_METHODOLOGY.md](NAVIGATOR_DEVELOPMENT_METHODOLOGY.md) |
 | **Historial** | "última sesión", "progreso", "qué se hizo" | → [NAVIGATOR_SESSION_HISTORY.md](NAVIGATOR_SESSION_HISTORY.md) |
 | **Core** | "universal", "shared", "authentication", "payment" | → Especialista: DESARROLLADOR_SENIOR + ARQUITECTO |
 | **Vertical** | "restaurant", "hotel", "retail", "healthcare" | → Especialista: ANALISTA_NEGOCIO + DESARROLLADOR_SENIOR |
@@ -47,6 +53,24 @@ INPUT: /start-session vertical "descripción [vertical]"
 AUTO-ROUTING: Detecta vertical automáticamente
 ESPECIALISTAS: ANALISTA_NEGOCIO + DESARROLLADOR_SENIOR
 CONTEXTO: ESPECIALIZACIONES.md + PATRONES_CODIGO.md + vertical específico
+```
+
+#### SESIÓN DESARROLLO METODOLÓGICO
+```
+INPUT: /start-development core "autenticación biométrica"
+AUTO-ROUTING: → [NAVIGATOR_DEVELOPMENT_METHODOLOGY.md](NAVIGATOR_DEVELOPMENT_METHODOLOGY.md)
+ESPECIALISTAS: DESARROLLADOR_SENIOR + ARQUITECTO + ANALISTA_NEGOCIO
+CONTEXTO: Metodología 20 fases + estado actual + documentación existente
+OUTPUT: Estado de fases + próximas acciones + documentación faltante
+```
+
+#### SESIÓN CONTINUACIÓN DESARROLLO
+```
+INPUT: /continue-development "modelo-datos" core
+AUTO-ROUTING: → Fase específica en [NAVIGATOR_DEVELOPMENT_METHODOLOGY.md](NAVIGATOR_DEVELOPMENT_METHODOLOGY.md)
+ESPECIALISTAS: Especialistas de la fase actual
+CONTEXTO: Documentación de fase + archivos en progreso + criterios completitud
+OUTPUT: Tareas específicas + archivos para editar + criterios validación
 ```
 
 ## PREPARACIÓN AUTOMÁTICA DE ENTORNO
@@ -129,6 +153,7 @@ Usuario: "Implementar sistema de notificaciones push"
 |---------|-----------|---------------|
 | [NAVIGATOR_ONBOARDING.md](NAVIGATOR_ONBOARDING.md) | Flujos de onboarding para nuevos usuarios | ~800 |
 | [NAVIGATOR_GIT_FLOW.md](NAVIGATOR_GIT_FLOW.md) | Scripts y validaciones Git Flow completas | ~1,200 |
+| [NAVIGATOR_DEVELOPMENT_METHODOLOGY.md](NAVIGATOR_DEVELOPMENT_METHODOLOGY.md) | Metodología estructurada 20 fases desarrollo | ~1,800 |
 | [NAVIGATOR_SESSION_HISTORY.md](NAVIGATOR_SESSION_HISTORY.md) | Manejo de historial y última sesión | ~600 |
 | [NAVIGATOR_EXAMPLES.md](NAVIGATOR_EXAMPLES.md) | Ejemplos detallados de uso | ~1,000 |
 | [NAVIGATOR_SCRIPTS.md](NAVIGATOR_SCRIPTS.md) | Scripts PowerShell y Bash completos | ~1,500 |

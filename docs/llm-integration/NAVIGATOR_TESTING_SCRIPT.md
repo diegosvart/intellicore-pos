@@ -77,7 +77,65 @@ NOTAS: ________________________________
 
 ---
 
-### **🔄 GRUPO 2: NUEVA ITERACIÓN (Desarrollo)**
+### **🏗️ GRUPO 2: METODOLOGÍA DE DESARROLLO (Nuevo)**
+
+#### **TEST DM-001: Inicio desarrollo estructurado**
+```
+COMANDO A EJECUTAR:
+"Quiero trabajar en el core de autenticación"
+
+RESULTADOS ESPERADOS:
+✅ Detecta: DEVELOPMENT_METHODOLOGY
+✅ Trigger: "quiero trabajar en" + "core"
+✅ Carga: NAVIGATOR_DEVELOPMENT_METHODOLOGY.md
+✅ Comando sugerido: /start-development core "autenticación"
+✅ Especialistas: DESARROLLADOR_SENIOR + ARQUITECTO + ANALISTA_NEGOCIO
+✅ Contexto: Metodología 20 fases + estado actual componente
+✅ Salida: Estado de fases + documentación existente + próximas acciones
+
+RESULTADO REAL: [ ] ✅ PASS / [ ] ❌ FAIL
+NOTAS: ________________________________
+```
+
+#### **TEST DM-002: Consulta estado desarrollo**
+```
+COMANDO A EJECUTAR:
+"¿En qué estado está el desarrollo del core?"
+
+RESULTADOS ESPERADOS:
+✅ Detecta: DEVELOPMENT_STATUS
+✅ Trigger: "estado" + "desarrollo" + "core"
+✅ Carga: NAVIGATOR_DEVELOPMENT_METHODOLOGY.md
+✅ Comando sugerido: /check-development-status core
+✅ Especialistas: DESARROLLADOR_SENIOR (lead)
+✅ Contexto: Estado actual de características + ramas activas
+✅ Salida: Resumen características + fases completadas + próximas acciones
+
+RESULTADO REAL: [ ] ✅ PASS / [ ] ❌ FAIL
+NOTAS: ________________________________
+```
+
+#### **TEST DM-003: Continuación desarrollo específico**
+```
+COMANDO A EJECUTAR:
+"Continuar con el modelo de datos del sistema de pagos"
+
+RESULTADOS ESPERADOS:
+✅ Detecta: DEVELOPMENT_CONTINUATION
+✅ Trigger: "continuar" + "modelo de datos" + "pagos"
+✅ Carga: NAVIGATOR_DEVELOPMENT_METHODOLOGY.md
+✅ Comando sugerido: /continue-development "modelo-datos" core pagos
+✅ Especialistas: DESARROLLADOR_SENIOR + ARQUITECTO
+✅ Contexto: Fase actual + archivos en progreso + criterios completitud
+✅ Salida: Tareas específicas + archivos para editar + criterios validación
+
+RESULTADO REAL: [ ] ✅ PASS / [ ] ❌ FAIL
+NOTAS: ________________________________
+```
+
+---
+
+### **🔄 GRUPO 3: NUEVA ITERACIÓN (Desarrollo)**
 
 #### **TEST IT-001: Funcionalidad core universal**
 ```
@@ -175,7 +233,7 @@ NOTAS: ________________________________
 
 ---
 
-### **📊 GRUPO 3: CONSULTA DE HISTORIAL**
+### **📊 GRUPO 4: CONSULTA DE HISTORIAL**
 
 #### **TEST HI-001: Última iteración**
 ```
@@ -232,7 +290,7 @@ NOTAS: ________________________________
 
 ---
 
-### **🔍 GRUPO 4: CONSULTAS ESPECÍFICAS**
+### **🔍 GRUPO 5: CONSULTAS ESPECÍFICAS**
 
 #### **TEST SP-001: Análisis arquitectural**
 ```
@@ -288,7 +346,7 @@ NOTAS: ________________________________
 
 ---
 
-### **❌ GRUPO 5: CASOS EDGE Y MANEJO DE ERRORES**
+### **❌ GRUPO 6: CASOS EDGE Y MANEJO DE ERRORES**
 
 #### **TEST ED-001: Consulta ambigua**
 ```
@@ -353,6 +411,13 @@ NOTAS: ________________________________
 
 **Score Onboarding: ___/3 (Target: 3/3)**
 
+#### **Metodología Desarrollo (3 casos)**
+- [ ] DM-001: Inicio desarrollo estructurado ___/✅
+- [ ] DM-002: Consulta estado desarrollo ___/✅
+- [ ] DM-003: Continuación desarrollo específico ___/✅
+
+**Score Metodología: ___/3 (Target: 3/3)**
+
 #### **Nueva Iteración (5 casos)**
 - [ ] IT-001: Funcionalidad core ___/✅
 - [ ] IT-002: Vertical específica ___/✅
@@ -383,31 +448,34 @@ NOTAS: ________________________________
 
 **Score Edge Cases: ___/3 (Target: 3/3)**
 
-### **SCORE TOTAL: ___/17 (Target: 17/17 = 100%)**
+### **SCORE TOTAL: ___/20 (Target: 20/20 = 100%)**
 
 ---
 
 ## ⚡ TESTING RÁPIDO - COMANDOS ESENCIALES
 
-### **QUICK TEST SET (5 comandos básicos)**
+### **QUICK TEST SET (6 comandos básicos)**
 ```bash
 # 1. Onboarding
 "¿De qué trata este repositorio?"
 
-# 2. Nueva iteración core
+# 2. Metodología desarrollo
+"Quiero trabajar en el core de autenticación"
+
+# 3. Nueva iteración core
 "Implementar sistema de autenticación biométrica"
 
-# 3. Nueva iteración vertical  
+# 4. Nueva iteración vertical  
 "Crear sistema de reservas para hoteles"
 
-# 4. Consulta historial
+# 5. Consulta historial
 "¿Qué se implementó en la última iteración?"
 
-# 5. Caso edge
+# 6. Caso edge
 "Quiero hacer algo con el sistema"
 ```
 
-**Quick Score: ___/5**
+**Quick Score: ___/6**
 
 ---
 
@@ -417,7 +485,7 @@ NOTAS: ________________________________
 
 #### **Precisión de Detección**
 ```
-Casos detectados correctamente: ___/17
+Casos detectados correctamente: ___/20
 Porcentaje: ___% (Target: >95%)
 ```
 
@@ -437,9 +505,9 @@ Target: <5 segundos
 
 #### **Calidad de Routing**
 ```
-Especialistas correctos: ___/17
-Módulos apropiados: ___/17
-Contexto relevante: ___/17
+Especialistas correctos: ___/20
+Módulos apropiados: ___/20
+Contexto relevante: ___/20
 ```
 
 ---
