@@ -1,0 +1,128 @@
+```mermaid
+graph TB
+    %% Core Universal Use Cases Diagram
+    
+    subgraph "CORE UNIVERSAL MODULES"
+        subgraph "AUTH MODULE"
+            CU_AUTH_001[CU-AUTH-001: Multi-Tenant Authentication]
+            CU_AUTH_002[CU-AUTH-002: Granular Authorization]
+            CU_AUTH_003[CU-AUTH-003: Session Management]
+        end
+        
+        subgraph "PAYMENTS MODULE"
+            CU_PAY_001[CU-PAY-001: Universal Payment Processing]
+            CU_PAY_002[CU-PAY-002: Smart Split Billing]
+        end
+        
+        subgraph "CUSTOMERS MODULE"
+            CU_CUST_001[CU-CUST-001: Unified Customer Registration]
+            CU_CUST_002[CU-CUST-002: Customer Journey Tracking]
+        end
+        
+        subgraph "QR SELFSERVICE MODULE"
+            CU_QR_001[CU-QR-001: Dynamic QR Generation]
+            CU_QR_002[CU-QR-002: Self-Service Experience]
+        end
+        
+        subgraph "ML ENGINE MODULE"
+            CU_ML_001[CU-ML-001: Personalized Recommendations]
+            CU_ML_002[CU-ML-002: Predictive Analytics]
+        end
+        
+        subgraph "INVENTORY MODULE"
+            CU_INV_001[CU-INV-001: Cross-Vertical Stock Control]
+        end
+        
+        subgraph "ANALYTICS MODULE"
+            CU_ANA_001[CU-ANA-001: Real-Time Executive Dashboard]
+            CU_ANA_002[CU-ANA-002: Scheduled Reports]
+        end
+        
+        subgraph "EVENT BUS MODULE"
+            CU_EVT_001[CU-EVT-001: Cross-Vertical Communication]
+        end
+        
+        subgraph "REGISTRY MODULE"
+            CU_REG_001[CU-REG-001: Service Registration]
+        end
+        
+        subgraph "DATABASE MODULE"
+            CU_DB_001[CU-DB-001: Multi-Tenancy Enforcement]
+        end
+    end
+    
+    subgraph "ACTORS"
+        CUSTOMER[Customer]
+        ADMIN[Administrator]
+        EMPLOYEE[Employee]
+        SYSTEM[System]
+        MICROSERVICE[Microservice]
+    end
+    
+    subgraph "VERTICALES"
+        RESTAURANT[Restaurant Vertical]
+        HOTEL[Hotel Vertical]
+        RETAIL[Retail Vertical]
+        SERVICES[Services Vertical]
+        HEALTHCARE[Healthcare Vertical]
+    end
+    
+    %% Actor connections
+    CUSTOMER --> CU_AUTH_001
+    CUSTOMER --> CU_PAY_001
+    CUSTOMER --> CU_PAY_002
+    CUSTOMER --> CU_CUST_001
+    CUSTOMER --> CU_QR_002
+    
+    ADMIN --> CU_AUTH_002
+    ADMIN --> CU_ANA_001
+    ADMIN --> CU_ML_002
+    
+    EMPLOYEE --> CU_AUTH_001
+    EMPLOYEE --> CU_AUTH_002
+    
+    SYSTEM --> CU_AUTH_003
+    SYSTEM --> CU_CUST_002
+    SYSTEM --> CU_QR_001
+    SYSTEM --> CU_ML_001
+    SYSTEM --> CU_INV_001
+    SYSTEM --> CU_ANA_002
+    SYSTEM --> CU_EVT_001
+    SYSTEM --> CU_DB_001
+    
+    MICROSERVICE --> CU_REG_001
+    
+    %% Vertical connections (all verticals use all core modules)
+    CU_AUTH_001 --> RESTAURANT
+    CU_AUTH_001 --> HOTEL
+    CU_AUTH_001 --> RETAIL
+    CU_AUTH_001 --> SERVICES
+    CU_AUTH_001 --> HEALTHCARE
+    
+    CU_PAY_001 --> RESTAURANT
+    CU_PAY_001 --> HOTEL
+    CU_PAY_001 --> RETAIL
+    CU_PAY_001 --> SERVICES
+    CU_PAY_001 --> HEALTHCARE
+    
+    CU_QR_002 --> RESTAURANT
+    CU_QR_002 --> HOTEL
+    CU_QR_002 --> RETAIL
+    CU_QR_002 --> SERVICES
+    
+    %% Cross-module dependencies
+    CU_AUTH_001 -.-> CU_DB_001
+    CU_PAY_001 -.-> CU_EVT_001
+    CU_CUST_002 -.-> CU_ML_001
+    CU_QR_002 -.-> CU_PAY_001
+    CU_ML_001 -.-> CU_ANA_001
+    
+    %% Styling
+    classDef actorStyle fill:#e1f5fe,stroke:#01579b,stroke-width:2px
+    classDef coreStyle fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef verticalStyle fill:#e8f5e8,stroke:#1b5e20,stroke-width:2px
+    
+    class CUSTOMER,ADMIN,EMPLOYEE,SYSTEM,MICROSERVICE actorStyle
+    class CU_AUTH_001,CU_AUTH_002,CU_AUTH_003,CU_PAY_001,CU_PAY_002,CU_CUST_001,CU_CUST_002,CU_QR_001,CU_QR_002,CU_ML_001,CU_ML_002,CU_INV_001,CU_ANA_001,CU_ANA_002,CU_EVT_001,CU_REG_001,CU_DB_001 coreStyle
+    class RESTAURANT,HOTEL,RETAIL,SERVICES,HEALTHCARE verticalStyle
+```
