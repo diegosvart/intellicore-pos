@@ -1,0 +1,52 @@
+"""
+Archivo de requerimientos principales para IntelliCore POS
+"""
+
+# Framework web
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+
+# Base de datos
+sqlalchemy==2.0.23
+alembic==1.12.1
+psycopg2-binary==2.9.9
+
+# Autenticación y seguridad
+pyjwt==2.8.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.6
+
+# Cache y sesiones
+redis==5.0.1
+
+# Pagos
+stripe==7.6.0
+
+# QR y códigos
+qrcode[pil]==7.4.2
+
+# Machine Learning
+scikit-learn==1.3.2
+numpy==1.25.2
+pandas==2.1.4
+
+# Análisis y reportes
+plotly==5.17.0
+matplotlib==3.8.2
+
+# Testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
+httpx==0.25.2
+
+# Desarrollo
+python-dotenv==1.0.0
+pydantic==2.5.0
+pydantic-settings==2.1.0
+
+# Logging y monitoreo
+loguru==0.7.2
+
+# Utilidades
+python-dateutil==2.8.2
+requests==2.31.0
